@@ -4,10 +4,10 @@
 
 :root {
   /* ---- Colors ---- */
-  --c-primary: #1D4ED8;
+  --c-primary: #1E40AF;
   --c-primary-dark: #1E3A8A;
   --c-primary-light: #3B82F6;
-  --c-primary-alpha: rgba(29, 78, 216, 0.12);
+  --c-primary-alpha: rgba(30, 64, 175, 0.12);
 
   --c-accent: #D4A843;
   --c-accent-light: #F5E6C8;
