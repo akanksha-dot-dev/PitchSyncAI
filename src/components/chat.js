@@ -240,10 +240,15 @@ function renderTicketEmbed(data) {
 }
 
 /**
- * Simple markdown-like formatting
+ * Safe markdown-like formatting — sanitize first, then apply transforms on safe text only
+ * @param {string} text
+ * @returns {string} Safe HTML string with bold, line breaks, bullets
  */
 function formatMarkdown(text) {
-  return sanitizeHTML(text)
+  // 1. Sanitize all user content to plain text entities first
+  const safe = sanitizeHTML(text);
+  // 2. Apply cosmetic transforms ONLY on the already-escaped safe string
+  return safe
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\n/g, '<br>')
     .replace(/• /g, '&bull; ');

@@ -13,6 +13,7 @@ const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
 const memoryCache = new Map();
 
 let autoSaveTimer = null;
+let autoSaveUnloadHandler = null;
 
 /* ---- L1: Memory Cache ---- */
 

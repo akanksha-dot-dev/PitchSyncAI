@@ -147,9 +147,10 @@ function acknowledgeAlert(alertId) {
 
   const item = $(`#alert-${alertId}`);
   if (item) {
-    const ackBtns = item.querySelectorAll('.btn--secondary');
+    const ackBtns = Array.from(item.querySelectorAll('.btn--secondary'));
     ackBtns.forEach(btn => {
-      btn.outerHTML = '<span class="text-xs text-green-600 font-medium">✓ Acknowledged</span>';
+      const badge = h('span', { class: 'text-xs text-green-600 font-medium' }, '✓ Acknowledged');
+      btn.replaceWith(badge);
     });
   }
 

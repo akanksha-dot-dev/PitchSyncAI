@@ -141,11 +141,15 @@ export async function generateResponse(intent, entities, language, context) {
 
     case 'wayfinding': {
       const isAccessible = context?.accessibility?.wheelchair;
-      const route = isAccessible ? MOCK_ROUTES.accessible_seat : MOCK_ROUTES.seat;
+      const routeData = await getRoute(
+        entities.gate || 'gate_a',
+        entities.section || 'section_100',
+        { accessible: isAccessible }
+      );
       const prefix = templates.wayfinding[lang] || templates.wayfinding.en;
       return {
         text: prefix,
-        richData: { type: 'route', steps: route, accessible: isAccessible },
+        richData: { type: 'route', steps: routeData.steps, accessible: isAccessible },
         type: 'route',
       };
     }
