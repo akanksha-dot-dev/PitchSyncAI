@@ -200,10 +200,9 @@ export function startAutoSave(getState) {
     saveSnapshot(getState());
   }, AUTO_SAVE_INTERVAL);
 
-  // Save on page unload
-  window.addEventListener('beforeunload', () => {
-    saveSnapshot(getState());
-  });
+  // Store reference so it can be cleaned up
+  autoSaveUnloadHandler = () => saveSnapshot(getState());
+  window.addEventListener('beforeunload', autoSaveUnloadHandler);
 }
 
 /**
@@ -213,6 +212,10 @@ export function stopAutoSave() {
   if (autoSaveTimer) {
     clearInterval(autoSaveTimer);
     autoSaveTimer = null;
+  }
+  if (autoSaveUnloadHandler) {
+    window.removeEventListener('beforeunload', autoSaveUnloadHandler);
+    autoSaveUnloadHandler = null;
   }
 }
 
