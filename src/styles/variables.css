@@ -1,0 +1,114 @@
+/* ============================================================
+   FIFA MatchDay GenAI Nexus — Design Tokens
+   ============================================================ */
+
+:root {
+  /* ---- Colors ---- */
+  --c-primary: #1D4ED8;
+  --c-primary-dark: #1E3A8A;
+  --c-primary-light: #3B82F6;
+  --c-primary-alpha: rgba(29, 78, 216, 0.12);
+
+  --c-accent: #D4A843;
+  --c-accent-light: #F5E6C8;
+  --c-accent-dark: #B8922F;
+
+  --c-bg: #FAFBFC;
+  --c-bg-card: #FFFFFF;
+  --c-bg-elevated: #F1F5F9;
+  --c-bg-hover: #E2E8F0;
+  --c-border: #CBD5E1;
+  --c-border-light: #E2E8F0;
+
+  --c-text: #1E293B;
+  --c-text-secondary: #475569;
+  --c-text-muted: #94A3B8;
+  --c-text-inverse: #FFFFFF;
+
+  --c-success: #16A34A;
+  --c-success-bg: #F0FDF4;
+  --c-warning: #EAB308;
+  --c-warning-bg: #FEFCE8;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEF2F2;
+  --c-info: #0EA5E9;
+  --c-info-bg: #F0F9FF;
+
+  /* ---- Typography ---- */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+
+  /* ---- Spacing ---- */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* ---- Border Radius ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* ---- Shadows ---- */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 16px rgba(29, 78, 216, 0.2);
+
+  /* ---- Transitions ---- */
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+
+  /* ---- Z-index Scale ---- */
+  --z-base: 0;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-overlay: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+  --z-loading: 60;
+
+  /* ---- Layout ---- */
+  --header-height: 64px;
+  --sidebar-width: 320px;
+  --max-content: 1280px;
+  --chat-max-width: 720px;
+}

@@ -1,0 +1,15 @@
+{
+  "name": "fifa-matchday-genai-nexus",
+  "private": true,
+  "version": "1.0.0",
+  "description": "GenAI-powered dual-mode assistant for FIFA World Cup 2026 stadium operations",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}
