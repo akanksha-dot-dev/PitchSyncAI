@@ -1,7 +1,12 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — DOM Helpers
-   Lightweight hyperscript + query utilities
-   ============================================================ */
+/**
+ * @module dom
+ * @description Lightweight DOM helper utilities for PitchSync AI.
+ *
+ * Provides a hyperscript-like `h()` function for declarative element
+ * creation, query shortcuts (`$`, `$$`), and animation wrappers that
+ * leverage the Web Animations API. No virtual DOM — all helpers produce
+ * real `HTMLElement` instances for zero-overhead rendering.
+ */
 
 /**
  * Create a DOM element with attributes and children
@@ -72,7 +77,7 @@ export function $$(selector, root = document) {
 export function mount(parent, content) {
   parent.innerHTML = '';
   if (typeof content === 'string') {
-    parent.innerHTML = content;
+    parent.appendChild(document.createTextNode(content));
   } else if (content instanceof Node) {
     parent.appendChild(content);
   }

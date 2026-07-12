@@ -1,10 +1,22 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Validation Wizard Component
-   Proactive reroute conflict checker for Ops staff
-   ============================================================ */
+/**
+ * @module validation-wizard
+ * @description Proactive reroute conflict-checker for Ops Command staff.
+ *
+ * When an ops staff member requests a crowd reroute, this wizard runs
+ * four automated validation checks before approval:
+ *
+ * 1. **Reroute Proposal** — Summary of the proposed action
+ * 2. **Accessibility Pathway Check** — Detects conflicts with wheelchair routes
+ * 3. **Transit Capacity Check** — Validates shuttle capacity for redirected flow
+ * 4. **Impact Summary** — Pass / Warning / Fail decision with recommendations
+ *
+ * The wizard uses a modal dialog with an ARIA focus trap to ensure
+ * keyboard accessibility (Tab cycles within the panel, Escape closes).
+ */
 
 import { h, $ } from '../utils/dom.js';
 import { createFocusTrap, announce } from '../utils/a11y.js';
+import { formatMarkdown } from '../utils/format.js';
 import state, { subscribe } from '../core/state.js';
 import { on, emit } from '../core/events.js';
 import { STADIUM_ZONES, ACCESSIBILITY_OPTIONS } from '../utils/constants.js';
@@ -198,14 +210,6 @@ function getImpactSummary(checks) {
   return '❌ **Reroute not recommended** in current form. Transit capacity would be exceeded, creating a secondary bottleneck. Consider splitting flow across multiple gates or delaying reroute by 5 minutes.';
 }
 
-/**
- * Format simple markdown
- */
-function formatMarkdown(text) {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br>');
-}
 
 /**
  * Handle reroute approval
@@ -233,4 +237,3 @@ function closeWizard() {
   state.wizardData = null;
 }
 
-export default { initValidationWizard };

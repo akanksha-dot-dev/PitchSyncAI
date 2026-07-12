@@ -1,11 +1,22 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Chat Component
-   GenAI chat interface for Fan Copilot mode
-   ============================================================ */
+/**
+ * @module chat
+ * @description GenAI chat interface component for Fan Copilot mode.
+ *
+ * Renders a full-featured chat UI with:
+ * - Markdown-like message formatting (bold, bullets, line breaks)
+ * - Rich data cards (route steps, transit schedules, ticket info)
+ * - Typing indicator with ARIA live-region announcements
+ * - Quick-reply suggestion chips (multilingual)
+ * - Auto-resizing textarea input
+ *
+ * Messages flow through the GenAI processing pipeline defined in
+ * {@link module:genai-engine} before being rendered as AI responses.
+ */
 
 import { h, $, mount, formatTime, uid, debounce } from '../utils/dom.js';
 import { announce } from '../utils/a11y.js';
 import { sanitizeHTML, validateMessage } from '../utils/validators.js';
+import { formatMarkdown } from '../utils/format.js';
 import state, { subscribe } from '../core/state.js';
 import { emit } from '../core/events.js';
 import { processMessage } from '../services/genai-engine.js';
@@ -239,20 +250,7 @@ function renderTicketEmbed(data) {
   );
 }
 
-/**
- * Safe markdown-like formatting — sanitize first, then apply transforms on safe text only
- * @param {string} text
- * @returns {string} Safe HTML string with bold, line breaks, bullets
- */
-function formatMarkdown(text) {
-  // 1. Sanitize all user content to plain text entities first
-  const safe = sanitizeHTML(text);
-  // 2. Apply cosmetic transforms ONLY on the already-escaped safe string
-  return safe
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br>')
-    .replace(/• /g, '&bull; ');
-}
+
 
 /**
  * Handle keyboard input in the chat
@@ -420,4 +418,3 @@ export function sendQuickReply(text) {
   }
 }
 
-export default { createChat, sendQuickReply };

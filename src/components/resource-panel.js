@@ -1,7 +1,11 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Resource Panel Component
-   Staff deployment controls for Ops mode
-   ============================================================ */
+/**
+ * @module resource-panel
+ * @description Staff resource deployment panel for Ops Command mode.
+ *
+ * Displays four resource categories (Security, Medical, Crowd Control,
+ * Accessibility) with +/− manual controls and an AI Auto-Balance button
+ * that redistributes staff based on current crowd density.
+ */
 
 import { h, $, formatNumber } from '../utils/dom.js';
 import { announce } from '../utils/a11y.js';
@@ -207,4 +211,3 @@ function updateDeploymentSuggestions() {
   }
 }
 
-export default { createResourcePanel };

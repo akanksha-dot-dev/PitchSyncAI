@@ -1,7 +1,12 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Heatmap Component
-   Real-time crowd density visualization (Ops Mode)
-   ============================================================ */
+/**
+ * @module heatmap
+ * @description Real-time crowd density heatmap for Ops Command mode.
+ *
+ * Renders an SVG stadium overlay with colour-coded zone density
+ * (green → yellow → orange → red) and percentage labels.
+ * Subscribes to live crowd-data updates from the Firebase mock
+ * service to repaint zones in real time.
+ */
 
 import { h, $ } from '../utils/dom.js';
 import state, { subscribe } from '../core/state.js';
@@ -257,4 +262,3 @@ function updateHeatmapZones(crowdData) {
   }
 }
 
-export default { createHeatmap };

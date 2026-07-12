@@ -1,7 +1,21 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Accessibility Utilities
-   WCAG AAA compliance helpers + ARIA management
-   ============================================================ */
+/**
+ * @module a11y
+ * @description WCAG AAA accessibility utilities for PitchSync AI.
+ *
+ * Provides helpers that ensure the application meets or exceeds
+ * WCAG 2.1 AAA requirements:
+ *
+ * - **Screen-reader announcements** via ARIA live-regions (`announce`)
+ * - **Focus traps** for modal dialogs and wizards (`createFocusTrap`)
+ * - **Keyboard navigation** for list-style components (`setupKeyboardNav`)
+ * - **Contrast checking** against the 7:1 AAA ratio (`checkContrast`)
+ * - **ARIA attribute management** (`setAria`, `ensureLabel`)
+ *
+ * The `prefers-reduced-motion` media query is respected at the CSS
+ * level (see `base.css`), disabling all animations for motion-sensitive
+ * users. A hidden skip-link is rendered in the header for keyboard-first
+ * navigation.
+ */
 
 /**
  * Announce a message to screen readers via an ARIA live region

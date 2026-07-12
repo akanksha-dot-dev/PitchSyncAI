@@ -1,7 +1,17 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Hash-Based SPA Router
-   Lightweight routing with transition support
-   ============================================================ */
+/**
+ * @module router
+ * @description Hash-based SPA router for PitchSync AI.
+ *
+ * Maps URL hash fragments (`#/fan`, `#/ops`) to handler functions.
+ * Features:
+ * - **Direct matching** for static routes (`#/fan` → Fan Copilot)
+ * - **Pattern matching** with named params (`#/zone/:id`)
+ * - **Navigation guards** (`beforeEach`) for access control
+ * - **Query-string parsing** appended after `?`
+ *
+ * Designed for stadium-grade simplicity: no History API complexity,
+ * no external dependencies, works offline in constrained networks.
+ */
 
 import { emit } from './events.js';
 
@@ -170,4 +180,3 @@ export function destroyRouter() {
   window.removeEventListener('hashchange', handleRouteChange);
 }
 
-export default { route, notFound, beforeEach, navigate, getCurrentRoute, initRouter, destroyRouter };

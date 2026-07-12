@@ -1,13 +1,25 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Main Application Bootstrap
-   App initialization, routing, mode switching
-   ============================================================ */
+/**
+ * @module main
+ * @description Application bootstrap for PitchSync AI.
+ *
+ * Orchestrates the full startup sequence:
+ * 1. Restore persisted state from localStorage snapshot
+ * 2. Initialize crowd-data and mock ticket
+ * 3. Build the app shell (header + main content region)
+ * 4. Register hash-based SPA routes (`#/fan`, `#/ops`)
+ * 5. Start real-time Firebase crowd-data simulation
+ * 6. Enable 30-second auto-save and online/offline detection
+ * 7. Wire up the reroute validation wizard
+ *
+ * Both Fan Copilot and Ops Command views are rendered into the
+ * same `#view-container` element; mode switching triggers a full
+ * re-render of the active panel.
+ */
 
 import state, { subscribe, batch } from './core/state.js';
-import { initRouter, route, navigate } from './core/router.js';
-import { on, emit } from './core/events.js';
+import { initRouter, route } from './core/router.js';
 import { restoreSnapshot, startAutoSave, saveSnapshot } from './core/cache.js';
-import { h, $, mount } from './utils/dom.js';
+import { h, $ } from './utils/dom.js';
 import { announce } from './utils/a11y.js';
 import { generateCrowdData, MOCK_TICKET } from './utils/constants.js';
 

@@ -1,7 +1,14 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Translation Service (Mocked)
-   Simulated Google Cloud Translation API
-   ============================================================ */
+/**
+ * @module translation
+ * @description Mocked Google Cloud Translation API for PitchSync AI.
+ *
+ * Provides language detection via Unicode script analysis and common-word
+ * matching, plus dictionary-based translation for key stadium phrases in
+ * 9 languages. Simulates realistic API latency (100–300 ms).
+ *
+ * In production, swap `translateText()` internals with the real
+ * Google Cloud Translation v3 client.
+ */
 
 import { LANGUAGES } from '../utils/constants.js';
 
@@ -180,4 +187,3 @@ export function getSupportedLanguages() {
   }));
 }
 
-export default { detectLanguage, translateText, getSupportedLanguages };

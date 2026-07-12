@@ -1,7 +1,10 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Transit Card Component
-   Dynamic transit schedule display cards
-   ============================================================ */
+/**
+ * @module transit-card
+ * @description Transit Card component for displaying upcoming departures.
+ *
+ * Renders lists of transit departure times (metro, bus, shuttle) with status
+ * indicators, countdown updates, and delay alerts.
+ */
 
 import { h, $, formatTime } from '../utils/dom.js';
 import { announce } from '../utils/a11y.js';
@@ -152,4 +155,3 @@ export function destroyTransitPanel() {
   }
 }
 
-export default { createTransitPanel, destroyTransitPanel };

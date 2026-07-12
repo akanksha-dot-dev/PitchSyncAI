@@ -1,7 +1,16 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Event Bus
-   Lightweight pub/sub with namespaced events
-   ============================================================ */
+/**
+ * @module events
+ * @description Lightweight publish/subscribe event bus with namespace support.
+ *
+ * Enables decoupled communication between components via named events.
+ * Supports:
+ * - Direct listeners (`on` / `off`)
+ * - One-shot listeners (`once`) that auto-remove after first fire
+ * - Namespace wildcards (`fan:*` catches `fan:message`, `fan:typing`)
+ *
+ * All handler errors are caught and logged so a single failing
+ * subscriber never disrupts other listeners.
+ */
 
 /** @type {Map<string, Set<Function>>} */
 const listeners = new Map();
@@ -109,4 +118,3 @@ export function removeAll(event) {
   }
 }
 
-export default { on, once, off, emit, removeAll };

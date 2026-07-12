@@ -1,7 +1,18 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Firebase/Firestore Service (Mocked)
-   Real-time crowd density simulation + cross-device sync
-   ============================================================ */
+/**
+ * @module firebase
+ * @description Mocked Firebase/Firestore real-time service for PitchSync AI.
+ *
+ * Simulates Firestore `onSnapshot` listeners for crowd-density data
+ * and operational alerts. Crowd data evolves via smooth ±5% transitions
+ * per 5-second tick, modelling realistic stadium dynamics without
+ * requiring real sensor infrastructure.
+ *
+ * Alert simulation generates random ops alerts every 8–15 seconds
+ * using templates that reference actual stadium zones.
+ *
+ * Each mock service is a drop-in replacement — swap the internals
+ * with real Firebase SDK clients without modifying any component code.
+ */
 
 import { generateCrowdData, OPS_ALERT_TEMPLATES } from '../utils/constants.js';
 
@@ -200,7 +211,3 @@ export function cleanup() {
   alertSubscribers.clear();
 }
 
-export default {
-  subscribeToCrowdData, subscribeToAlerts, pushAlert,
-  syncState, getCrowdSnapshot, cleanup,
-};

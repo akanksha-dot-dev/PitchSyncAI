@@ -1,7 +1,16 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Transit Schedule Service
-   Dynamic transit scheduling with crowd-aware frequency
-   ============================================================ */
+/**
+ * @module transit
+ * @description Dynamic transit schedule service for PitchSync AI.
+ *
+ * Generates and manages departure schedules for metro, bus, event
+ * shuttle, and rideshare services near the stadium. Schedules are
+ * cached in the L1 memory layer for 60 seconds to prevent excessive
+ * regeneration.
+ *
+ * Supports crowd-aware surge scheduling: when overall density
+ * exceeds 80%, extra "surge" departures are injected to model
+ * real-world transit-authority coordination.
+ */
 
 import { generateTransitSchedules, TRANSIT_MODES } from '../utils/constants.js';
 import { memGet, memSet } from '../core/cache.js';
@@ -123,7 +132,3 @@ export function getDepartureCountdown(departureISO) {
   return { minutes, text, isUrgent: minutes <= 3 };
 }
 
-export default {
-  getSchedule, getScheduleByMode, getNextDeparture,
-  getAdjustedSchedule, simulateDelay, getTransitMode, getDepartureCountdown,
-};

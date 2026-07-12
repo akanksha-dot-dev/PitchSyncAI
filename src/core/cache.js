@@ -1,8 +1,18 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Cache Layer
-   Dual-layer caching: Memory (L1) + LocalStorage (L2)
-   Localized state snapshotting with auto-save
-   ============================================================ */
+/**
+ * @module cache
+ * @description Dual-layer caching system for PitchSync AI.
+ *
+ * Provides two complementary storage tiers:
+ * - **L1 (Memory)**: In-memory `Map` with optional TTL for hot data
+ * - **L2 (localStorage)**: Persistent storage with TTL and quota management
+ *
+ * The unified `cacheGet` / `cacheSet` interface automatically promotes
+ * L2 hits into L1 to accelerate repeated reads.
+ *
+ * State snapshotting (`saveSnapshot` / `restoreSnapshot`) persists
+ * essential app state (mode, language, chat history, ticket data)
+ * to localStorage for offline resilience inside congested stadiums.
+ */
 
 const STORAGE_PREFIX = 'fifa_nexus_';
 const SNAPSHOT_KEY = `${STORAGE_PREFIX}snapshot`;
@@ -251,10 +261,3 @@ export function cacheSet(key, value, ttlMs) {
   storageSet(key, value, ttlMs);
 }
 
-export default {
-  memGet, memSet, memDelete, memClear,
-  storageGet, storageSet, storageDelete,
-  saveSnapshot, restoreSnapshot,
-  startAutoSave, stopAutoSave,
-  cacheGet, cacheSet,
-};

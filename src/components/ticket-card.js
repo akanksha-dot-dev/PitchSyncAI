@@ -1,7 +1,10 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Digital Ticket Card
-   Offline-capable ticket display with save functionality
-   ============================================================ */
+/**
+ * @module ticket-card
+ * @description Digital Ticket component for displaying match entry passes.
+ *
+ * Renders offline-saved digital tickets with gate, section, row, seat fields
+ * and scannable barcodes.
+ */
 
 import { h, $ } from '../utils/dom.js';
 import { announce } from '../utils/a11y.js';
@@ -147,4 +150,3 @@ function checkOfflineStatus() {
   }, 200);
 }
 
-export default { createTicketCard };

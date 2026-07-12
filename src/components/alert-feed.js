@@ -1,7 +1,11 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Alert Feed Component
-   AI-generated operational alerts for Ops mode
-   ============================================================ */
+/**
+ * @module alert-feed
+ * @description AI-generated operational alert feed for Ops Command mode.
+ *
+ * Subscribes to the Firebase alert simulation and renders severity-coded
+ * alert cards with acknowledge / resolve / reroute actions.
+ * ARIA live-region announcements ensure screen-reader accessibility.
+ */
 
 import { h, $, formatTime, uid } from '../utils/dom.js';
 import { announce } from '../utils/a11y.js';
@@ -216,4 +220,3 @@ export function destroyAlertFeed() {
   }
 }
 
-export default { createAlertFeed, destroyAlertFeed };

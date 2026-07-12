@@ -1,7 +1,13 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Header Component
-   Branding, mode toggle, language selector
-   ============================================================ */
+/**
+ * @module header
+ * @description App header component with branding, mode toggle, and language selector.
+ *
+ * Renders a fixed top bar with:
+ * - FIFA branding and skip-link for keyboard-first navigation
+ * - Tab-style toggle between Fan Copilot and Ops Command modes
+ * - 10-language selector dropdown (ISO 639-1)
+ * - Live online/offline connection indicator
+ */
 
 import { h, $ } from '../utils/dom.js';
 import { setAria, announce } from '../utils/a11y.js';
@@ -163,4 +169,3 @@ function updateOnlineStatus(online) {
   indicator.setAttribute('aria-label', online ? 'Connected' : 'Offline');
 }
 
-export default { createHeader };

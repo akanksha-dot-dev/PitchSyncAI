@@ -1,7 +1,16 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Maps Service (Mocked)
-   Simulated Google Maps Platform / Routes API
-   ============================================================ */
+/**
+ * @module maps
+ * @description Mocked Google Maps Platform / Routes API for PitchSync AI.
+ *
+ * Provides stadium wayfinding with automatic accessible-route
+ * adaptation. When wheelchair or visual-impairment preferences are
+ * detected, escalators become elevators, stairs become ramps, and
+ * narrow passages become widened corridors. Low-sensory routes add
+ * a quiet-corridor detour.
+ *
+ * In production, swap `getRoute()` internals with the real
+ * Google Maps Routes API client.
+ */
 
 import { STADIUM_ZONES, MOCK_ROUTES } from '../utils/constants.js';
 
@@ -122,4 +131,3 @@ export function getStadiumZones() {
   return { ...STADIUM_ZONES };
 }
 
-export default { getRoute, findNearby, getStadiumZones };

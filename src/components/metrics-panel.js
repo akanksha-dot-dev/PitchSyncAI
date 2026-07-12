@@ -1,7 +1,11 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Metrics Panel Component
-   4 KPI dashboard cards for Ops Command mode
-   ============================================================ */
+/**
+ * @module metrics-panel
+ * @description Four-KPI dashboard panel for Ops Command mode.
+ *
+ * Displays total occupancy, entry rate, active alert count, and
+ * average wait time as animated metric cards with sparkline charts.
+ * Subscribes to live crowd-data and alert-state updates.
+ */
 
 import { h, $, formatNumber } from '../utils/dom.js';
 import state, { subscribe } from '../core/state.js';
@@ -241,4 +245,3 @@ function simulateMetrics() {
   drawSparkline('sparkline-avg-wait', metricHistory.waitTime, '#DC2626');
 }
 
-export default { createMetricsPanel };

@@ -1,7 +1,29 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Constants & Mock Data
-   Stadium definitions, translations, templates, generators
-   ============================================================ */
+/**
+ * @module constants
+ * @description Central data definitions and mock generators for PitchSync AI.
+ *
+ * Contains all stadium zone layouts, FIFA 2026 venue data, multilingual
+ * response templates, transit mode definitions, and crowd-data generators.
+ * Mock data is architected as drop-in replacements — swap the generator
+ * internals with real SDK clients without modifying any component code.
+ *
+ * Threshold constants (e.g. {@link DENSITY_CRITICAL_THRESHOLD}) are
+ * exported as named values so business rules reference symbolic names
+ * instead of magic numbers.
+ */
+
+// ---- Density Threshold Constants ----
+/** Density percentage at or above which a zone is considered critical. */
+export const DENSITY_CRITICAL_THRESHOLD = 85;
+
+/** Density percentage at or above which a zone triggers a warning. */
+export const DENSITY_WARNING_THRESHOLD = 75;
+
+/** Density percentage at or above which a zone is considered moderate. */
+export const DENSITY_MODERATE_THRESHOLD = 60;
+
+/** Maximum number of messages retained before eviction. */
+export const MAX_CHAT_HISTORY = 50;
 
 // ---- Supported Languages ----
 export const LANGUAGES = {
@@ -35,6 +57,7 @@ export const VENUES = [
   { id: 'akron', name: 'Estadio Akron', city: 'Guadalajara', capacity: 49850, country: 'Mexico' },
   { id: 'bbva', name: 'Estadio BBVA', city: 'Monterrey', capacity: 53500, country: 'Mexico' },
 ];
+Object.freeze(VENUES);
 
 // Active venue (default)
 export const ACTIVE_VENUE = VENUES[0];

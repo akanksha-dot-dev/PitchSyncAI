@@ -1,7 +1,10 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Stadium Map Component
-   Interactive SVG stadium with density overlays
-   ============================================================ */
+/**
+ * @module stadium-map
+ * @description Stadium Map component with interactive SVG overlays.
+ *
+ * Renders an interactive map of the stadium for the Fan Copilot.
+ * Supports density visualizations, wayfinding overlays, and accessibility indicators.
+ */
 
 import { h, $ } from '../utils/dom.js';
 import { announce, setAria } from '../utils/a11y.js';
@@ -295,4 +298,3 @@ function updateMapOverlays(crowdData) {
   }
 }
 
-export default { createStadiumMap };

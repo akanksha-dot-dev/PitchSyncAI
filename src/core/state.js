@@ -1,12 +1,25 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Reactive State Manager
-   Proxy-based observable state with subscriber pattern
-   ============================================================ */
+/**
+ * @module state
+ * @description Proxy-based reactive state manager for PitchSync AI.
+ *
+ * Provides a single, observable state tree used across both Fan Copilot
+ * and Ops Command modes. Property assignments on the default export are
+ * automatically intercepted by a `Proxy` that notifies per-key and
+ * wildcard subscribers, enabling fine-grained UI updates without a
+ * virtual DOM.
+ *
+ * Key design decisions:
+ * - **Shallow comparison** on `set` prevents redundant notifications.
+ * - **Batch helper** collects mutations and fires notifications only
+ *   after the updater function completes, avoiding intermediate renders.
+ * - **Deep clone** is used for snapshots and resets so consumers never
+ *   share references with the internal store.
+ */
 
 /** @type {Map<string, Set<Function>>} */
 const subscribers = new Map();
 
-/** @type {Map<string, Set<Function>>} */
+/** @type {Set<Function>} */
 const wildcardSubs = new Set();
 
 const initialState = {
@@ -62,6 +75,8 @@ const initialState = {
   isOnline: navigator.onLine,
   lastSync: null,
 };
+
+Object.freeze(initialState.userProfile.accessibility);
 
 /**
  * Deep clone helper for initial state reset

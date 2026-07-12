@@ -1,7 +1,36 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — GenAI Processing Engine
-   Intent classification + response generation
-   ============================================================ */
+/**
+ * @module genai-engine
+ * @description GenAI processing engine for PitchSync AI.
+ *
+ * Implements a template-based NLP pipeline that processes fan queries
+ * through the following stages:
+ *
+ * ```
+ * User Input → XSS Sanitization → Language Detection
+ *   → Intent Classification → Entity Extraction
+ *   → Context Assembly → Response Generation
+ *   → Rich UI Card Rendering
+ * ```
+ *
+ * **Intent Classification**: Multi-language keyword matching across
+ * 8 intent categories (`wayfinding`, `transit`, `food`, `medical`,
+ * `accessibility`, `ticket`, `crowd`, `greeting`) with confidence
+ * scoring (0.70–0.90). Each intent resolves to a specific response
+ * template and optional rich-data payload (route cards, transit
+ * schedules, ticket embeds).
+ *
+ * **Entity Extraction**: Regex-based extraction of gate identifiers
+ * (`A`–`H`), section numbers, row letters, seat numbers, and
+ * stadium zone names from the sanitized input.
+ *
+ * **Accessibility Awareness**: When the assembled context includes
+ * wheelchair or visual-impairment preferences, the wayfinding
+ * intent automatically switches to accessible route generation.
+ *
+ * In production, the template-based engine would be replaced by a
+ * hosted LLM (e.g. Gemini) while preserving the same processing
+ * pipeline and response contract.
+ */
 
 import { RESPONSE_TEMPLATES, MOCK_ROUTES, MOCK_TICKET, STADIUM_ZONES } from '../utils/constants.js';
 import { translateText, detectLanguage } from './translation.js';
@@ -249,4 +278,3 @@ export async function processMessage(rawMessage, language, chatHistory, userProf
   }
 }
 
-export default { classifyIntent, generateResponse, processMessage };

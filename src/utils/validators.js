@@ -1,6 +1,12 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Input Validation & Sanitization
-   ============================================================ */
+/**
+ * @module validators
+ * @description Input validation and sanitization utilities for PitchSync AI.
+ *
+ * Provides XSS-safe HTML sanitization via DOM-based escaping,
+ * message length validation, ISO 639-1 language code checks,
+ * stadium-specific gate/zone validators, API key leak detection,
+ * and a sliding-window rate limiter.
+ */
 
 /**
  * Sanitize HTML input to prevent XSS

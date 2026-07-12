@@ -1,7 +1,25 @@
-/* ============================================================
-   FIFA MatchDay GenAI Nexus — Adaptive Context Manager
-   3-tier sliding window compression for conversation history
-   ============================================================ */
+/**
+ * @module context-manager
+ * @description Adaptive conversation-context manager for PitchSync AI.
+ *
+ * Prevents conversation-history overflow by applying a 3-tier sliding
+ * window compression strategy:
+ *
+ * | Tier            | Messages | Treatment                           |
+ * |-----------------|----------|-------------------------------------|
+ * | Full Fidelity   | Last 20  | Complete text preserved             |
+ * | Summarized      | 21–50   | Intent + entities + 100-char excerpt |
+ * | Evicted → Digest | 50+     | Single system summary with counts   |
+ *
+ * **Priority Pinning**: Messages with `accessibility`, `ticket`, or
+ * `emergency` intents are *never* evicted regardless of window position.
+ * This ensures the AI retains critical user context (e.g. wheelchair
+ * preferences, ticket data) across arbitrarily long conversations.
+ *
+ * The `assembleContext()` function builds the optimal context object
+ * for each GenAI call, extracting recent intent patterns for
+ * follow-up detection and surfacing any existing digest.
+ */
 
 const FULL_WINDOW = 20;      // Keep last 20 messages in full
 const SUMMARY_WINDOW = 30;   // Messages 21-50 compressed to summaries
@@ -167,4 +185,3 @@ export function getContextStats(chatHistory) {
   return { total: history.length, full, summarized, digests, priority, totalTokens };
 }
 
-export default { compressContext, assembleContext, getContextStats, estimateTokens };
