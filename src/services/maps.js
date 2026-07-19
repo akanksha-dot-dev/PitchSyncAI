@@ -15,24 +15,29 @@
 import { STADIUM_ZONES, MOCK_ROUTES } from '../utils/constants.js';
 
 // ---- Accessible route modifiers ----
-const ACCESSIBLE_ALTERNATIVES = {
+const ACCESSIBLE_ALTERNATIVES = Object.freeze({
   escalator: 'elevator',
   stairs: 'ramp',
   'narrow passage': 'widened corridor',
-};
+});
 
 /**
- * Get a route between two stadium locations
- * @param {string} from - Zone ID or 'entrance'
- * @param {string} to - Zone ID or 'seat'
- * @param {object} [accessibilityPrefs] - { wheelchair, visualImpairment, lowSensory }
- * @returns {Promise<{ steps: Array, totalTime: string, totalDistance: string, accessible: boolean }>}
+ * Get a wayfinding route between two stadium locations with accessibility adaptation.
+ *
+ * @param {string} from - Origin Zone ID or 'entrance'
+ * @param {string} to - Destination Zone ID or 'seat'
+ * @param {object} [accessibilityPrefs={}] - User accessibility flags { wheelchair, visualImpairment, lowSensory }
+ * @returns {Promise<{ steps: Array<{ step: number, instruction: string, distance: string, time: string, accessible?: boolean }>, totalTime: string, totalDistance: string, accessible: boolean }>} Route calculation payload
+ *
+ * @example
+ * const route = await getRoute('gate_a', 'section_100', { wheelchair: true });
+ * console.log(route.accessible); // => true
  */
 export async function getRoute(from, to, accessibilityPrefs = {}) {
   // Simulate API latency
   await new Promise(r => setTimeout(r, 150 + Math.random() * 250));
 
-  const isAccessible = accessibilityPrefs.wheelchair || accessibilityPrefs.visualImpairment;
+  const isAccessible = Boolean(accessibilityPrefs.wheelchair || accessibilityPrefs.visualImpairment);
 
   // Use pre-built routes
   const baseRoute = isAccessible ? MOCK_ROUTES.accessible_seat : MOCK_ROUTES.seat;
@@ -64,7 +69,7 @@ export async function getRoute(from, to, accessibilityPrefs = {}) {
 
   const totalTime = steps.reduce((sum, s) => {
     const match = s.time.match(/(\d+)/);
-    return sum + (match ? parseInt(match[1]) : 0);
+    return sum + (match ? parseInt(match[1], 10) : 0);
   }, 0);
 
   return {
@@ -76,10 +81,14 @@ export async function getRoute(from, to, accessibilityPrefs = {}) {
 }
 
 /**
- * Find nearby points of interest in the stadium
- * @param {string} category - 'food', 'medical', 'restroom', 'gate', 'vip'
- * @param {string} [nearZone] - Current zone ID for proximity
- * @returns {Promise<Array<{ name: string, distance: string, zone: string, icon: string }>>}
+ * Find nearby points of interest in the stadium based on proximity coordinates.
+ *
+ * @param {string} category - Point category ('food'|'medical'|'restroom'|'gate'|'vip')
+ * @param {string} [nearZone] - Current zone ID for proximity calculation
+ * @returns {Promise<Array<{ name: string, distance: string, zone: string, icon: string }>>} List of matching nearby points
+ *
+ * @example
+ * const food = await findNearby('food', 'gate_a');
  */
 export async function findNearby(category, nearZone) {
   await new Promise(r => setTimeout(r, 100 + Math.random() * 150));
@@ -87,7 +96,6 @@ export async function findNearby(category, nearZone) {
   const matches = Object.values(STADIUM_ZONES)
     .filter(z => z.type === category)
     .map(z => {
-      // Calculate pseudo-distance based on coordinates
       let distance = '~5 min walk';
       if (nearZone && STADIUM_ZONES[nearZone]) {
         const from = STADIUM_ZONES[nearZone];
@@ -105,15 +113,16 @@ export async function findNearby(category, nearZone) {
         icon: getZoneIcon(z.type),
       };
     })
-    .sort((a, b) => parseInt(a.distance) - parseInt(b.distance));
+    .sort((a, b) => parseInt(a.distance, 10) - parseInt(b.distance, 10));
 
   return matches;
 }
 
 /**
- * Get zone icon
- * @param {string} type
- * @returns {string}
+ * Get display icon string for a zone category type.
+ *
+ * @param {string} type - Zone type identifier
+ * @returns {string} Emoji icon string
  */
 function getZoneIcon(type) {
   const icons = {
@@ -124,10 +133,10 @@ function getZoneIcon(type) {
 }
 
 /**
- * Get all stadium zone data for map rendering
- * @returns {object}
+ * Get copy of all stadium zone configurations.
+ *
+ * @returns {Record<string, { id: string, name: string, type: string, x: number, y: number, capacity: number }>} Copy of zones object
  */
 export function getStadiumZones() {
   return { ...STADIUM_ZONES };
 }
-

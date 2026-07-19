@@ -21,19 +21,18 @@ const CACHE_TTL = 60000; // 1 minute
 let schedulesCache = null;
 
 /**
- * Get current transit schedules
- * Uses caching to prevent excessive regeneration
- * @returns {Array}
+ * Get current transit departure schedules with L1 memory caching.
+ *
+ * @returns {Array<{ id: string, mode: string, line: string, destination: string, departure: string, delay: number, accessible: boolean, capacity: number }>} Array of departure schedules
+ *
+ * @example
+ * const schedules = getSchedule();
  */
 export function getSchedule() {
-  // Check memory cache first
   const cached = memGet(CACHE_KEY);
   if (cached) return cached;
 
-  // Generate fresh schedules
   const schedules = generateTransitSchedules();
-
-  // Cache for 1 minute
   memSet(CACHE_KEY, schedules, CACHE_TTL);
   schedulesCache = schedules;
 
@@ -41,18 +40,23 @@ export function getSchedule() {
 }
 
 /**
- * Get schedules filtered by transit mode
- * @param {string} mode - 'metro', 'bus', 'shuttle', 'rideshare'
- * @returns {Array}
+ * Get transit schedules filtered by transit mode category.
+ *
+ * @param {'metro'|'bus'|'shuttle'|'rideshare'} mode - Transit mode identifier
+ * @returns {Array<object>} Filtered departure schedules
+ *
+ * @example
+ * const shuttles = getScheduleByMode('shuttle');
  */
 export function getScheduleByMode(mode) {
   return getSchedule().filter(s => s.mode === mode);
 }
 
 /**
- * Get the next departure for a specific mode
- * @param {string} mode
- * @returns {object|null}
+ * Get the next immediate departure schedule for a given transit mode.
+ *
+ * @param {'metro'|'bus'|'shuttle'|'rideshare'} mode - Transit mode ID
+ * @returns {object|null} Next upcoming departure schedule or null if none available
  */
 export function getNextDeparture(mode) {
   const now = new Date();
@@ -60,75 +64,84 @@ export function getNextDeparture(mode) {
 }
 
 /**
- * Adjust schedule frequency based on crowd density
- * Higher density → more frequent departures
- * @param {number} densityPercent - Current overall crowd density (0-100)
- * @returns {Array} Adjusted schedules
+ * Calculate human-readable departure countdown text and urgency indicator.
+ *
+ * @param {string|Date} departureTime - Departure time ISO string or Date
+ * @returns {{ text: string, minutes: number, isUrgent: boolean }} Countdown object
+ *
+ * @example
+ * getDepartureCountdown('2026-06-11T21:45:00');
+ * // => { text: '12m', minutes: 12, isUrgent: false }
  */
-export function getAdjustedSchedule(densityPercent) {
-  const schedules = getSchedule();
+export function getDepartureCountdown(departureTime) {
+  const dep = new Date(departureTime);
+  const now = new Date();
+  const diffMs = dep - now;
+  const minutes = Math.max(0, Math.round(diffMs / 60000));
 
-  if (densityPercent > 80) {
-    // Surge mode: add extra departures
-    const extras = [];
-    for (const s of schedules.slice(0, 3)) {
-      const surgeDeparture = new Date(new Date(s.departure).getTime() + 3 * 60000);
-      extras.push({
-        ...s,
-        id: `${s.id}_surge`,
-        departure: surgeDeparture.toISOString(),
-        line: `${s.line} (Surge)`,
-        delay: 0,
-      });
-    }
-    return [...schedules, ...extras].sort((a, b) => new Date(a.departure) - new Date(b.departure));
+  let text = `${minutes}m`;
+  if (minutes === 0) text = 'Now';
+  else if (minutes >= 60) {
+    const hours = Math.floor(minutes / 60);
+    const remainingMins = minutes % 60;
+    text = `${hours}h ${remainingMins}m`;
   }
 
-  return schedules;
+  return {
+    text,
+    minutes,
+    isUrgent: minutes <= 5,
+  };
 }
 
 /**
- * Simulate a transit delay
- * @param {string} scheduleId
- * @param {number} delayMinutes
- * @returns {object|null} Updated schedule entry
+ * Get transit mode configuration details (icon, name, accent color).
+ *
+ * @param {string} mode - Transit mode string ID
+ * @returns {{ icon: string, name: string, color: string }} Mode details object
+ */
+export function getTransitMode(mode) {
+  return TRANSIT_MODES[mode] || { icon: '🚌', name: 'Transit', color: '#1E40AF' };
+}
+
+/**
+ * Adjust transit schedules for high crowd density surges (injecting extra shuttles).
+ *
+ * @param {number} overallDensity - Overall stadium crowd density percentage
+ * @returns {Array<object>} Surge-adjusted schedule array
+ */
+export function getAdjustedSchedule(overallDensity) {
+  const baseSchedules = getSchedule();
+  if (overallDensity < 80) return baseSchedules;
+
+  // Add surge shuttles during high density
+  const surgeTime = new Date(Date.now() + 5 * 60000).toISOString();
+  const surgeShuttle = {
+    id: 'surge_shuttle_1',
+    mode: 'shuttle',
+    line: '⚡ Express Surge Shuttle',
+    destination: 'Secaucus Junction (Direct)',
+    departure: surgeTime,
+    delay: 0,
+    accessible: true,
+    capacity: 20,
+    surge: true,
+  };
+
+  return [surgeShuttle, ...baseSchedules];
+}
+
+/**
+ * Simulate a delay update for a specific transit schedule entry.
+ *
+ * @param {string} scheduleId - Transit schedule ID
+ * @param {number} delayMinutes - Delay duration in minutes
  */
 export function simulateDelay(scheduleId, delayMinutes) {
   const schedules = getSchedule();
-  const entry = schedules.find(s => s.id === scheduleId);
-  if (entry) {
-    entry.delay = delayMinutes;
+  const target = schedules.find(s => s.id === scheduleId);
+  if (target) {
+    target.delay = delayMinutes;
     memSet(CACHE_KEY, schedules, CACHE_TTL);
-    return entry;
   }
-  return null;
 }
-
-/**
- * Get transit mode info
- * @param {string} mode
- * @returns {object}
- */
-export function getTransitMode(mode) {
-  return TRANSIT_MODES[mode] || { icon: '🚌', name: mode, color: '#6B7280' };
-}
-
-/**
- * Format departure countdown
- * @param {string} departureISO - ISO date string
- * @returns {{ minutes: number, text: string, isUrgent: boolean }}
- */
-export function getDepartureCountdown(departureISO) {
-  const now = new Date();
-  const departure = new Date(departureISO);
-  const diffMs = departure - now;
-  const minutes = Math.max(0, Math.round(diffMs / 60000));
-
-  let text;
-  if (minutes === 0) text = 'Departing now';
-  else if (minutes === 1) text = '1 min';
-  else text = `${minutes} min`;
-
-  return { minutes, text, isUrgent: minutes <= 3 };
-}
-
