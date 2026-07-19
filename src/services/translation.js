@@ -167,5 +167,8 @@ export function translateText(text, targetLang) {
  * @returns {Array<{ code: string, name: string, nativeName: string, flag: string, rtl?: boolean }>} Array of language objects
  */
 export function getSupportedLanguages() {
-  return Object.values(LANGUAGES);
+  return Object.entries(LANGUAGES).map(([code, lang]) => ({
+    code,
+    ...lang,
+  }));
 }
