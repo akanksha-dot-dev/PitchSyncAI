@@ -130,6 +130,10 @@ test('OPS_ALERT_TEMPLATES has valid severity levels', () => {
 });
 
 test('ACCESSIBILITY_OPTIONS covers key disability types', () => {
+  assert.ok(Array.isArray(ACCESSIBILITY_OPTIONS));
+  assert.ok(ACCESSIBILITY_OPTIONS.length >= 4);
+  assert.ok(Array.isArray(RESOURCE_TYPES));
+  assert.ok(RESOURCE_TYPES.length >= 4);
   const ids = ACCESSIBILITY_OPTIONS.map(o => o.id);
   assert.ok(ids.includes('wheelchair'));
   assert.ok(ids.includes('visualImpairment'));

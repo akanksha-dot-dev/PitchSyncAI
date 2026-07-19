@@ -29,7 +29,7 @@ if (typeof globalThis.window === 'undefined') {
   };
 }
 
-import { route, notFound, beforeEach, initRouter } from '../core/router.js';
+import { route, notFound, beforeEach, initRouter, destroyRouter } from '../core/router.js';
 
 test('Router matches registered paths and parameters', () => {
   // Reset state
