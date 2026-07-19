@@ -60,16 +60,23 @@ export function createHeader() {
 }
 
 /**
+ * Get CSS classes for mode buttons based on active state.
+ * @param {boolean} isActive
+ * @returns {string}
+ */
+function getModeButtonClass(isActive) {
+  const base = 'flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200';
+  const stateClass = isActive ? 'bg-white text-fifa-blue shadow-sm' : 'text-slate-500 hover:text-slate-700';
+  return `${base} ${stateClass}`;
+}
+
+/**
  * Create a mode toggle button
  */
 function createModeButton(mode, icon, label, isActive) {
   const btn = h('button', {
     id: `mode-btn-${mode}`,
-    class: `flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 ${
-      isActive
-        ? 'bg-white text-fifa-blue shadow-sm'
-        : 'text-slate-500 hover:text-slate-700'
-    }`,
+    class: getModeButtonClass(isActive),
     role: 'tab',
     'aria-selected': isActive ? 'true' : 'false',
     'aria-controls': `${mode}-panel`,
@@ -130,25 +137,19 @@ function createOnlineIndicator() {
   );
 }
 
-/**
- * Update mode toggle UI
- */
 function updateModeToggle(mode) {
   const fanBtn = $(`#mode-btn-fan`);
   const opsBtn = $(`#mode-btn-ops`);
   if (!fanBtn || !opsBtn) return;
 
-  const activeClass = 'bg-white text-fifa-blue shadow-sm';
-  const inactiveClass = 'text-slate-500 hover:text-slate-700';
-
   if (mode === 'fan') {
-    fanBtn.className = `flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 ${activeClass}`;
-    opsBtn.className = `flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 ${inactiveClass}`;
+    fanBtn.className = getModeButtonClass(true);
+    opsBtn.className = getModeButtonClass(false);
     fanBtn.setAttribute('aria-selected', 'true');
     opsBtn.setAttribute('aria-selected', 'false');
   } else {
-    opsBtn.className = `flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 ${activeClass}`;
-    fanBtn.className = `flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 ${inactiveClass}`;
+    opsBtn.className = getModeButtonClass(true);
+    fanBtn.className = getModeButtonClass(false);
     opsBtn.setAttribute('aria-selected', 'true');
     fanBtn.setAttribute('aria-selected', 'false');
   }

@@ -76,6 +76,26 @@ function handleNewAlert(alert) {
 }
 
 /**
+ * Get CSS badge class for a given severity.
+ * @param {string} severity
+ * @returns {string}
+ */
+function getSeverityBadgeClass(severity) {
+  const map = { critical: 'danger', warning: 'warning', info: 'info' };
+  return `badge badge--${map[severity] || 'info'}`;
+}
+
+/**
+ * Get human-readable label for a given severity.
+ * @param {string} severity
+ * @returns {string}
+ */
+function getSeverityLabel(severity) {
+  const map = { critical: 'Critical', warning: 'Warning', info: 'Info' };
+  return map[severity] || 'Info';
+}
+
+/**
  * Render a single alert item
  */
 function renderAlert(alert) {
@@ -89,14 +109,14 @@ function renderAlert(alert) {
     class: 'alert-item',
     id: `alert-${alert.id}`,
     role: 'listitem',
-    'aria-label': `${alert.severity} alert for ${zoneName}: ${alert.message}`,
+    'aria-label': `${getSeverityLabel(alert.severity)} alert for ${zoneName}: ${alert.message}`,
   },
     h('div', { class: `alert-item__indicator alert-item__indicator--${alert.severity}` }),
     h('div', { class: 'alert-item__content' },
       h('div', { class: 'flex items-center gap-2' },
         h('span', { class: 'alert-item__zone' }, zoneName),
         h('span', {
-          class: `badge badge--${alert.severity === 'critical' ? 'danger' : alert.severity === 'warning' ? 'warning' : 'info'}`,
+          class: getSeverityBadgeClass(alert.severity),
         }, alert.severity),
       ),
       h('p', { class: 'alert-item__message' }, alert.message),

@@ -261,3 +261,24 @@ export function cacheSet(key, value, ttlMs) {
   storageSet(key, value, ttlMs);
 }
 
+/**
+ * Get cache statistics for telemetry/monitoring.
+ * @returns {{ memoryKeys: number, storageSize: number }}
+ */
+export function getCacheStats() {
+  let storageSize = 0;
+  if (typeof localStorage !== 'undefined') {
+    try {
+      storageSize = Object.keys(localStorage)
+        .filter(k => k.startsWith(STORAGE_PREFIX))
+        .reduce((sum, k) => sum + (localStorage.getItem(k) || '').length, 0);
+    } catch (_) {
+      // Fail-silent if localStorage is blocked
+    }
+  }
+  return {
+    memoryKeys: memoryCache.size,
+    storageSize,
+  };
+}
+

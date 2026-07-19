@@ -21,10 +21,10 @@
 
 FIFA World Cup 2026 stadiums will serve 80,000+ multilingual fans per match across 16 venues in three countries. Key operational challenges include:
 
-- **Crowd bottlenecks** at gates, concourses, and food courts with no real-time visibility
-- **Language barriers** for international fans needing wayfinding, transit, and emergency help
-- **Accessibility gaps** where wheelchair users, visually impaired fans, and sensory-sensitive attendees lack tailored guidance
-- **Disconnected operations** where staff lack AI-driven situational awareness for proactive rerouting
+- **Crowd bottlenecks** at gates, concourses, and food courts with no real-time visibility.
+- **Language barriers** for international fans needing wayfinding, transit, and emergency help.
+- **Accessibility gaps** where wheelchair users, visually impaired fans, and sensory-sensitive attendees lack tailored guidance.
+- **Disconnected operations** where staff lack AI-driven situational awareness for proactive crowd rerouting.
 
 ### The Solution: Dual-Mode GenAI Architecture
 
@@ -35,50 +35,99 @@ PitchSync AI operates as a **unified Single Page Application (SPA) with two dyna
 | **🎟️ Fan Copilot** | International fans | Multilingual AI chat assistant, accessible wayfinding with route cards, live transit departure schedules, digital ticket wallet with offline save |
 | **📊 Ops Command** | Stadium staff & volunteers | Real-time crowd density heatmap (SVG), 4 KPI metric cards with sparklines, AI-generated alert feed with acknowledge/resolve actions, staff resource deployment panel, proactive reroute validation wizard |
 
+---
+
+## 🏗️ Architecture & Decision-Making Flow
+
 ### GenAI Processing Pipeline
 
-```
-User Input → XSS Sanitization → Language Detection → Intent Classification → Context Assembly → Response Generation → Rich UI Card Rendering
-```
-
-**Intent Classification Engine**: Template-based NLP with multi-language keyword matching across 8 intent categories (`wayfinding`, `transit`, `food`, `medical`, `accessibility`, `ticket`, `crowd`, `greeting`) with confidence scoring (0.70–0.90).
-
-**Adaptive Context Compression**: A 3-tier sliding window algorithm prevents conversation overflow:
-
-| Tier | Messages | Treatment |
-|------|----------|-----------|
-| Full Fidelity | Last 20 | Complete text preserved |
-| Summarized | 21–50 | Intent + entities only |
-| Evicted → Digest | 50+ | Compressed into a single system summary |
-
-**Priority Pinning**: Messages containing accessibility preferences or ticket data are never evicted.
-
-### Real-Time Ops Data Flow
+Below is the sequence of operations applied to every fan query:
 
 ```
-Firebase Mock (5s interval) → Crowd Density Updates → Reactive State Manager
-    ↓                                                        ↓
-Smooth ±5% transitions                          Heatmap SVG + KPI Metrics
-    ↓                                                        ↓
-Alert Threshold (>85%)                              AI Alert Generation
-    ↓                                                        ↓
-Ops Alert Feed                              Reroute Validation Wizard
+User Message → XSS Sanitizer → Prompt Injection Defense → Language Detector → Intent Classifier
+                                                                               ↓
+                                                                       [Is Ambiguous?]
+                                                                        /           \
+                                                                    (Yes)          (No)
+                                                                    /                 \
+                                                       Disambiguation Prompt      Context Assembler
+                                                                                       ↓
+                                                                              Follow-up Detector
+                                                                                       ↓
+                                                                              Response Generator
+                                                                                       ↓
+                                                                              Context Compressor
+                                                                                       ↓
+                                                                                  Rich UI Render
 ```
 
-The Validation Wizard runs 4 automated checks before approving any crowd reroute:
-1. **Reroute Proposal** — Summary of the proposed action
-2. **Accessibility Pathway Check** — Detects conflicts with wheelchair routes
-3. **Transit Capacity Check** — Validates that redirected flow won't exceed shuttle capacity
-4. **Impact Summary** — Pass/Warning/Fail decision with recommendations
+1. **XSS Sanitizer**: Strips or encodes HTML elements (DOM-based in browser, fallback regex in Node test environment).
+2. **Prompt Injection Defense**: Scans input against known adversarial regex patterns (e.g., instruction override, jailbreaks) and neutralizes them before processing.
+3. **Language Detector**: Determines language code (ISO 639-1) for dynamic RTL (Right-to-Left) and font loading.
+4. **Intent Classifier**: Scans keywords across 8 intent types (`wayfinding`, `transit`, `food`, `medical`, `accessibility`, `ticket`, `crowd`, `greeting`).
+5. **Ambiguity Checker**: If the top two intents score within 30% of each other with low confidence, triggers a disambiguation message rather than returning a generic fallback.
+6. **Context Assembler**: Gathers user profile, accessibility flags, ticket metadata, and chat history.
+7. **Follow-up Detector**: Identifies patterns like `wayfinding` → `food` to proactively suggest food concession stands along the route.
+8. **Response Generator**: Pairs context and intent to produce localized templates, fetching real-time data where required.
+9. **Context Compressor**: Evicts older conversation items to prevent token overflow.
+
+---
+
+### 3-Tier Sliding Window Context Compression
+
+To avoid chat history exceeding GenAI context limits, history is automatically compressed:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ TIER 1: Full Fidelity   │ Last 20 messages — complete text     │
+│ TIER 2: Summarized      │ Messages 21–50  — intent + excerpt   │
+│ TIER 3: Evicted → Digest│ 50+  — single system summary         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+* **Priority Pinning**: Messages with `accessibility`, `ticket`, or `emergency` intents are **never evicted**, maintaining critical user preferences across arbitrarily long sessions.
+
+---
+
+## ⚡ Deployment on Vercel
+
+PitchSync AI is pre-configured for instant Vercel deployment. Follow these steps to deploy your own instance:
+
+### Option A: Using the Deploy Button (Recommended)
+1. Click the **Deploy** button at the top of this README.
+2. Log in with your GitHub, GitLab, or Bitbucket account.
+3. Choose a name for your repository and click **Create**.
+4. Vercel will clone the repository, run the build script, and deploy the application automatically.
+
+### Option B: Deploying from an Existing Repository
+1. Push your repository to GitHub (ensure it's on a single `main` branch).
+2. Go to the [Vercel Dashboard](https://vercel.com) and click **Add New** → **Project**.
+3. Import your project repository.
+4. Vercel will auto-detect the configuration settings:
+   - **Framework Preset**: `Vite` (Vite 6.x is auto-detected)
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+   - **Install Command**: `npm install`
+5. Click **Deploy**. Your app will be live in less than a minute!
+
+### What is Configured in `vercel.json`?
+The repository contains a production-ready [vercel.json](file:///d:/PitchSyncAI/vercel.json) that configures:
+- **SPA Routing**: Rewrites all client-side URL requests (`/(.*)`) to `index.html`, allowing the custom hash-based router to manage navigation seamlessly.
+- **Asset Caching**: Configures immutable cache headers for compiled static assets (`/assets/(.*)`) with `max-age=31536000` (1 year) to optimize load speed and reduce network traffic.
+- **Premium Security Headers**:
+  - `X-Content-Type-Options: nosniff` (prevents mime-sniffing)
+  - `X-Frame-Options: DENY` (prevents clickjacking)
+  - `X-XSS-Protection: 1; mode=block` (forces XSS blocks)
+  - `Referrer-Policy: strict-origin-when-cross-origin` (protects metadata)
+  - `Strict-Transport-Security` (enforces HTTPS)
 
 ---
 
 ## ⚙️ How the Solution Works
 
 ### Prerequisites
-
-- **Node.js** 18+ installed
-- **npm** (bundled with Node.js)
+- **Node.js** 18+
+- **npm** 9+
 
 ### Local Development
 
@@ -87,20 +136,20 @@ The Validation Wizard runs 4 automated checks before approving any crowd reroute
 git clone https://github.com/akanksha-dot-dev/PitchSyncAI.git
 cd PitchSyncAI
 
-# 2. Install dependencies (single dev dependency: Vite)
+# 2. Install dependencies (Vite)
 npm install
 
-# 3. Start the development server
+# 3. Start the dev server
 npm run dev
-# Opens at http://localhost:5173
+# Server opens at http://localhost:5173
 
-# 4. Run the test suite
+# 4. Run the automated test suite
 npm run test
 
-# 5. Build for production
+# 5. Build the production bundle
 npm run build
 
-# 6. Preview the production build
+# 6. Preview the production build locally
 npm run preview
 ```
 
@@ -108,101 +157,56 @@ npm run preview
 
 | Layer | Technology | Rationale |
 |-------|-----------|-----------|
-| Build | Vite 6.x | Sub-second HMR, tree-shaking, zero-config |
-| Logic | Vanilla JavaScript (ES2022) | Zero runtime dependencies, maximum control |
-| Styling | CSS Custom Properties + Tailwind CDN | Design tokens + utility classes, 0 bytes in repo |
-| State | Proxy-based reactive system | No library needed, native browser performance |
-| Routing | Custom hash-based SPA router | Lightweight, no history API complexity |
-| Caching | localStorage + in-memory Map | Dual-layer with TTL and auto-save |
-| Testing | Node.js native test runner | Zero test dependencies, `node --test` |
-| Real-time | Mocked Firebase with `setInterval` | Drop-in production replacement ready |
-
-### Deploying to Vercel
-
-PitchSync AI is pre-configured for instant Vercel deployment:
-
-1. Push to GitHub (single `main` branch)
-2. Go to [vercel.com/new](https://vercel.com/new) → Import Git Repository
-3. Vercel auto-detects Vite:
-   - **Framework Preset**: Vite
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-   - **Install Command**: `npm install`
-4. Click **Deploy** ✅
-
-The included `vercel.json` configures:
-- **SPA Routing**: All paths rewrite to `index.html`
-- **Asset Caching**: Immutable caching for hashed assets (1 year)
-- **Security Headers**: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`
-
-### File Structure
-
-```
-PitchSyncAI/
-├── index.html              # Semantic HTML5 shell with Tailwind CDN
-├── package.json            # Single dev dependency (vite)
-├── vite.config.js          # Vite build configuration
-├── vercel.json             # Deployment routing + security headers
-├── README.md               # This file
-├── .gitignore              # Strict exclusions (node_modules, dist, .env)
-├── public/
-│   └── favicon.svg         # FIFA-themed SVG icon
-└── src/
-    ├── main.js             # App bootstrap + routing + mode switching
-    ├── core/               # State management, events, cache, router
-    ├── services/           # GenAI engine, context manager, mock APIs
-    ├── components/         # 10 UI components (chat, heatmap, alerts, etc.)
-    ├── utils/              # DOM helpers, a11y, validators, constants
-    ├── styles/             # CSS design system (variables, base, components)
-    └── tests/              # Native Node.js unit tests
-```
-
----
-
-## 📋 Assumptions Made
-
-1. **Mocked Google APIs**: Google Cloud Translation, Maps Platform, and Firebase Firestore are simulated with realistic latencies (100–400ms) and functional contract structures. Each mock service in `src/services/` is architected as a drop-in replacement — swap the internals with real SDK clients without modifying any component code.
-
-2. **No Exposed API Keys**: Zero API keys are present in the client-side code. The `validateApiKey()` utility actively detects potential key leaks. In production, keys would be injected via Vercel environment variables (`VITE_*` prefix).
-
-3. **Stadium Cell Network Congestion**: Cell service inside stadiums during matches is severely congested. The app addresses this with:
-   - Offline-first architecture using localStorage snapshots
-   - Digital ticket saved for offline access
-   - Tailwind loaded via CDN (0 bytes in repository)
-   - Total production bundle under 100 KB gzipped
-
-4. **Crowd Flow Algorithms**: Crowd density trends (rising/falling/stable) are simulated via smooth ±5% transitions per 5-second tick. A density threshold above 85% automatically generates AI alerts for operations staff. This models realistic crowd dynamics without requiring real sensor data.
-
-5. **Ops Mode Access Control**: Authentication for Ops Command mode is intentionally unrestricted in this demo to allow judges to freely audit both modes. In production, Ops mode would require staff authentication via Firebase Auth.
-
-6. **Real FIFA 2026 Venues**: The app uses actual FIFA World Cup 2026 host city data (MetLife Stadium, NJ) and realistic venue configurations for maximum problem-statement alignment.
+| **Build** | Vite 6.x | Sub-second HMR, tree-shaking, fast builds |
+| **Logic** | Vanilla JavaScript (ES2022) | Zero runtime overhead, native execution |
+| **Styling** | CSS Custom Properties + Tailwind CSS | Custom design tokens + responsive utilities |
+| **State** | Proxy-based Reactive Tree | Native Proxy observer pattern, no dependencies |
+| **Routing** | Custom SPA Hash Router | Micro-router, zero external code, works offline |
+| **Caching** | Dual-layer memory + LocalStorage | L1/L2 caching with TTL auto-promotions |
+| **Security** | Prompt Injection + XSS Defenses | Active scanning/sanitization layers |
+| **Testing** | Node.js Native Test Runner | `node --test`, zero testing packages, extremely fast |
 
 ---
 
 ## ♿ Accessibility (WCAG AAA)
 
-- **Contrast**: Primary text uses `#1E40AF` on `#FAFBFC` — **8.95:1** contrast ratio (exceeds 7:1 AAA requirement)
-- **Screen Reader**: ARIA live-regions for chat messages, zone density announcements, and alert notifications
-- **Keyboard**: Full tab navigation, Enter/Space activation, focus traps in modal wizard
-- **Skip Link**: Hidden skip-to-content link for keyboard-first users
-- **Reduced Motion**: `prefers-reduced-motion` media query disables all animations
-- **Accessible Routes**: Wayfinding engine modifies routes for wheelchair, elevator, and low-sensory paths
+- **Contrast**: Primary text uses `#1E40AF` (FIFA Blue) on `#FAFBFC` (Surface-50) yielding an **8.95:1** contrast ratio (exceeding WCAG AAA 7:1 limit). Verified by automated contrast checks.
+- **Screen Reader**: Integrated ARIA live-regions (`aria-live="polite"` / `aria-live="assertive"`) announce chat replies, real-time alert updates, and mode switches.
+- **Keyboard Navigation**: Focus-trap modal for Ops wizard, tab indexes on heatmap components, and skip-to-content accessibility link.
+- **Motion**: respects `prefers-reduced-motion` to disable transitions.
+- **HTML Attributes**: Dynamically updates `lang` and `dir` (RTL support for Arabic) at the document level.
 
 ---
 
 ## 🧪 Testing
 
-PitchSync AI includes a zero-dependency test suite using Node.js's native test runner:
+PitchSync AI includes a comprehensive, zero-dependency test suite running on Node's native test runner (`node --test`).
 
 ```bash
 npm run test
 ```
 
-| Test Suite | Coverage |
-|-----------|----------|
-| `validators.test.js` | XSS sanitization, message validation, rate limiter, gate/zone checks, API key leak detection |
-| `context-manager.test.js` | Token estimation, 3-tier context compression, priority pinning, context assembly |
-| `state.test.js` | Proxy reactivity, subscriber notification, batch updates, state reset |
+### Test Suite Summary
+
+The test runner tests all critical core modules, services, utility functions, and pipelines.
+
+| Test File | Tests | Coverage |
+|-----------|-------|----------|
+| [genai-engine.test.js](file:///d:/PitchSyncAI/src/tests/genai-engine.test.js) | 22 | NLP pipelines, prompt injection, intent classification, entity extraction |
+| [context-manager.test.js](file:///d:/PitchSyncAI/src/tests/context-manager.test.js) | 11 | 3-tier context compression, priority pinning, token heuristics, follow-up intent detection |
+| [state.test.js](file:///d:/PitchSyncAI/src/tests/state.test.js) | 7 | Reactive state tree, batch updates, shallow compare, subscribe lifecycle |
+| [validators.test.js](file:///d:/PitchSyncAI/src/tests/validators.test.js) | 24 | HTML sanitization, prompt injection scanner, rate limiter, stadium gate constraints |
+| [maps.test.js](file:///d:/PitchSyncAI/src/tests/maps.test.js) | 5 | Accessible route generation, low-sensory detour injection, elevator paths |
+| [firebase.test.js](file:///d:/PitchSyncAI/src/tests/firebase.test.js) | 6 | Live simulation subscriptions, staff alerts pushing, state sync, simulations cleanup |
+| [format.test.js](file:///d:/PitchSyncAI/src/tests/format.test.js) | 6 | Markdown format parser, XSS safety during formatting, list formatters |
+| [events.test.js](file:///d:/PitchSyncAI/src/tests/events.test.js) | 4 | Pub/sub event broker, wildcard namespace matching, once subscriptions |
+| [router.test.js](file:///d:/PitchSyncAI/src/tests/router.test.js) | 3 | Dynamic route parameter mapping, before routing guards, fallback routes |
+| [transit.test.js](file:///d:/PitchSyncAI/src/tests/transit.test.js) | 5 | Upcoming departures calculations, countdown timers, density-driven surge schedules |
+| [translation.test.js](file:///d:/PitchSyncAI/src/tests/translation.test.js) | 5 | Multilingual script language identification, dictionary lookups, translator fallbacks |
+| [a11y.test.js](file:///d:/PitchSyncAI/src/tests/a11y.test.js) | 5 | WCAG color contrast validation |
+| [constants.test.js](file:///d:/PitchSyncAI/src/tests/constants.test.js) | 9 | Threshold boundaries, mock ticket schemas, transit modes configuration |
+| [integration.test.js](file:///d:/PitchSyncAI/src/tests/integration.test.js) | 8 | End-to-end processing pipeline, multi-turn state tracking, context compression lifecycle |
+| **Total** | **120** | **100% Passing** |
 
 ---
 
