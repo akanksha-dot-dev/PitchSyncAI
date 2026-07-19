@@ -29,7 +29,7 @@ if (typeof globalThis.window === 'undefined') {
   };
 }
 
-import { route, notFound, beforeEach, navigate, getCurrentRoute, initRouter, destroyRouter } from '../core/router.js';
+import { route, notFound, beforeEach, initRouter } from '../core/router.js';
 
 test('Router matches registered paths and parameters', () => {
   // Reset state
@@ -69,7 +69,7 @@ test('Router guards cancel navigation when returning false', () => {
   let guardCalled = 0;
 
   // Register guard BEFORE initRouter to ensure clean state
-  beforeEach((to, from) => {
+  beforeEach((to, _from) => {
     guardCalled++;
     if (to === '#/admin') {
       return false; // Block navigation

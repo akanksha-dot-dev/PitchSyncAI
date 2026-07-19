@@ -61,6 +61,9 @@ test('cleanup stops all simulations', () => {
   const unsub1 = subscribeToCrowdData(() => {});
   const unsub2 = subscribeToAlerts(() => {});
 
+  unsub1();
+  unsub2();
+
   // Cleanup should not throw
   cleanup();
 

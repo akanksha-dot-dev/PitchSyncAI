@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { on, once, off, emit, removeAll } from '../core/events.js';
+import { on, once, emit, removeAll } from '../core/events.js';
 
 test('Event subscription and emission', () => {
   removeAll();

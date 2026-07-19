@@ -1,9 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { processMessage, classifyIntent } from '../services/genai-engine.js';
-import { compressContext, assembleContext, detectFollowUp } from '../services/context-manager.js';
-import { detectLanguage } from '../services/translation.js';
-import { sanitizeHTML, sanitizePromptInjection } from '../utils/validators.js';
+import { processMessage } from '../services/genai-engine.js';
+import { assembleContext, detectFollowUp } from '../services/context-manager.js';
 
 // ---- End-to-End Pipeline Tests ----
 

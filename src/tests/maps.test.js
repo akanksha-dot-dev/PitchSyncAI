@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { getRoute, findNearby, getStadiumZones } from '../services/maps.js';
+import { getRoute, getStadiumZones } from '../services/maps.js';
 
 test('getRoute returns standard route', async () => {
   const result = await getRoute('gate_a', 'section_100');

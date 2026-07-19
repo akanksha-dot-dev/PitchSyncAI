@@ -3,7 +3,6 @@ import assert from 'node:assert';
 import {
   getSchedule,
   getScheduleByMode,
-  getNextDeparture,
   getAdjustedSchedule,
   simulateDelay,
   getDepartureCountdown
