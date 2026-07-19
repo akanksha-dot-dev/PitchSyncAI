@@ -105,7 +105,7 @@ function startCrowdSimulation() {
     for (const fn of crowdSubscribers.values()) {
       try {
         fn(currentCrowdData);
-      } catch (err) {
+      } catch (_err) {
         // Silent catch for subscriber errors
       }
     }

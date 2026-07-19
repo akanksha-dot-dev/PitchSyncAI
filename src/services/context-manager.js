@@ -33,8 +33,7 @@ const FULL_FIDELITY_LIMIT = 20;
 /** Number of messages in the summary tier (beyond full fidelity). */
 const SUMMARY_TIER_SIZE = 30;
 
-/** Total maximum messages retained before eviction kicks in. */
-const MAX_HISTORY = 50;
+
 
 /**
  * Intent types that are considered high-priority and must never be
