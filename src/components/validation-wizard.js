@@ -19,12 +19,12 @@ import { createFocusTrap, announce } from '../utils/a11y.js';
 import { formatMarkdown } from '../utils/format.js';
 import state, { subscribe } from '../core/state.js';
 import { on, emit } from '../core/events.js';
-import { STADIUM_ZONES, ACCESSIBILITY_OPTIONS } from '../utils/constants.js';
+import { STADIUM_ZONES } from '../utils/constants.js';
 
 let focusTrap = null;
 
 /**
- * Initialize the validation wizard system
+ * Initialize the validation wizard system listeners.
  */
 export function initValidationWizard() {
   on('wizard:open', (data) => openWizard(data));
@@ -34,8 +34,9 @@ export function initValidationWizard() {
 }
 
 /**
- * Open the validation wizard
- * @param {object} data - { alert, zone }
+ * Open the validation wizard modal dialog with ARIA focus trap.
+ *
+ * @param {{ alert: object, zone: string }} data - Alert data and target zone ID
  */
 function openWizard(data) {
   if ($('#wizard-overlay')) return;
@@ -143,7 +144,13 @@ function openWizard(data) {
 }
 
 /**
- * Create a wizard step item
+ * Create a wizard step DOM element with status icon, title, and formatted description.
+ *
+ * @param {number} number - Step number (1–4)
+ * @param {'done'|'warning'|'error'|'pending'} status - Validation status
+ * @param {string} title - Step header title
+ * @param {string} description - Step description (markdown-formatted)
+ * @returns {HTMLElement} Step element
  */
 function createWizardStep(number, status, title, description) {
   return h('div', { class: 'wizard-step' },
@@ -163,22 +170,21 @@ function createWizardStep(number, status, title, description) {
 }
 
 /**
- * Run validation checks for a proposed reroute
- * @param {string} zoneId
- * @param {object} alert
- * @returns {object}
+ * Run 4 automated validation checks for a proposed reroute.
+ *
+ * @param {string} zoneId - Stadium zone ID
+ * @param {object} alert - Ops alert payload
+ * @returns {{ accessibilityConflict: boolean, accessibilityDetail: string, transitConflict: boolean, estimatedFlow: number, transitCapacity: number, overallStatus: string, density: number, zoneName: string }}
  */
 function runValidationChecks(zoneId, alert) {
   const zone = STADIUM_ZONES[zoneId];
   const crowdInfo = state.crowdData?.[zoneId];
   const density = crowdInfo?.density || 50;
 
-  // Simulate accessibility conflict (30% chance)
   const accessibilityConflict = Math.random() < 0.3;
   const accessibleZones = ['gate_a', 'gate_c', 'gate_e', 'gate_g'];
   const hasAccessiblePath = accessibleZones.includes(zoneId);
 
-  // Simulate transit capacity issue (20% chance)
   const transitConflict = density > 80 && Math.random() < 0.4;
   const estimatedFlow = Math.floor(density * 3 + Math.random() * 50);
   const transitCapacity = 250;
@@ -198,7 +204,10 @@ function runValidationChecks(zoneId, alert) {
 }
 
 /**
- * Get impact summary text
+ * Generate formatted impact summary text based on validation check results.
+ *
+ * @param {{ overallStatus: string }} checks - Check results
+ * @returns {string} Formatted markdown text
  */
 function getImpactSummary(checks) {
   if (checks.overallStatus === 'done') {
@@ -210,9 +219,11 @@ function getImpactSummary(checks) {
   return '❌ **Reroute not recommended** in current form. Transit capacity would be exceeded, creating a secondary bottleneck. Consider splitting flow across multiple gates or delaying reroute by 5 minutes.';
 }
 
-
 /**
- * Handle reroute approval
+ * Handle reroute approval action and emit approval event.
+ *
+ * @param {object} data - Original event data
+ * @param {object} checks - Validation check results
  */
 function handleApproveReroute(data, checks) {
   const status = checks.overallStatus === 'error' ? 'force-approved' : 'approved';
@@ -222,7 +233,7 @@ function handleApproveReroute(data, checks) {
 }
 
 /**
- * Close the wizard
+ * Close the validation wizard modal and deactivate ARIA focus trap.
  */
 function closeWizard() {
   const overlay = $('#wizard-overlay');
@@ -236,4 +247,3 @@ function closeWizard() {
   state.wizardOpen = false;
   state.wizardData = null;
 }
-

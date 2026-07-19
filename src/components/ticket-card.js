@@ -8,13 +8,14 @@
 
 import { h, $ } from '../utils/dom.js';
 import { announce } from '../utils/a11y.js';
-import state, { subscribe } from '../core/state.js';
+import state from '../core/state.js';
 import { saveSnapshot } from '../core/cache.js';
 import { MOCK_TICKET } from '../utils/constants.js';
 
 /**
- * Create the digital ticket card
- * @returns {HTMLElement}
+ * Create the digital ticket card component.
+ *
+ * @returns {HTMLElement} Ticket card DOM element
  */
 export function createTicketCard() {
   const ticket = state.userProfile?.ticket || MOCK_TICKET;
@@ -83,7 +84,11 @@ export function createTicketCard() {
 }
 
 /**
- * Create a ticket detail field
+ * Create a ticket detail field (e.g. Gate, Sec, Row, Seat).
+ *
+ * @param {string} label - Field label string
+ * @param {string} value - Field value string
+ * @returns {HTMLElement} Ticket field DOM element
  */
 function createTicketField(label, value) {
   return h('div', {},
@@ -93,7 +98,10 @@ function createTicketField(label, value) {
 }
 
 /**
- * Format date string
+ * Format ISO date string into short readable format (e.g. 'Thu, Jun 11').
+ *
+ * @param {string} dateStr - Date string in ISO format
+ * @returns {string} Formatted localized date string
  */
 function formatDate(dateStr) {
   try {
@@ -105,7 +113,7 @@ function formatDate(dateStr) {
 }
 
 /**
- * Save ticket data offline
+ * Handle saving ticket data offline into state and localStorage snapshot.
  */
 function handleSaveOffline() {
   const ticket = state.userProfile?.ticket || MOCK_TICKET;
@@ -137,7 +145,7 @@ function handleSaveOffline() {
 }
 
 /**
- * Check if ticket is saved offline
+ * Check if ticket is currently saved offline and reveal status element.
  */
 function checkOfflineStatus() {
   setTimeout(() => {
@@ -149,4 +157,3 @@ function checkOfflineStatus() {
     }
   }, 200);
 }
-
