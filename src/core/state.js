@@ -120,8 +120,15 @@ function notify(key, value, oldValue) {
   }
 }
 
+/**
+ * Raw state target — used by `batch()` to bypass the reactive proxy
+ * and prevent double-notification. Never expose this directly.
+ * @type {object}
+ */
+const rawTarget = deepClone(initialState);
+
 /** The reactive state proxy */
-const state = new Proxy(deepClone(initialState), {
+const state = new Proxy(rawTarget, {
   set(target, key, value) {
     const oldValue = target[key];
     // Skip if value hasn't changed (shallow compare)
@@ -168,7 +175,10 @@ export function subscribeAll(callback) {
  */
 export function batch(updater) {
   const pending = [];
-  const batchProxy = new Proxy(state, {
+  // Write directly to the raw target to bypass the reactive proxy's
+  // `set` trap. This prevents `notify()` from firing during the batch.
+  // Notifications are deferred and fired once after the updater completes.
+  const batchProxy = new Proxy(rawTarget, {
     set(target, key, value) {
       const oldValue = target[key];
       if (oldValue !== value) {
@@ -179,7 +189,7 @@ export function batch(updater) {
     },
   });
   updater(batchProxy);
-  // Fire all notifications after batch completes
+  // Fire all notifications exactly once after the batch completes
   for (const { key, value, oldValue } of pending) {
     notify(key, value, oldValue);
   }

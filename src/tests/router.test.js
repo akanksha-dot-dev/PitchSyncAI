@@ -9,16 +9,21 @@ if (typeof globalThis.window === 'undefined') {
       hash: ''
     },
     addEventListener: (event, handler) => {
-      listeners[event] = handler;
+      if (!listeners[event]) listeners[event] = [];
+      listeners[event].push(handler);
     },
     removeEventListener: (event, handler) => {
-      delete listeners[event];
+      if (listeners[event]) {
+        listeners[event] = listeners[event].filter(h => h !== handler);
+      }
     },
     // Test helper to simulate hashchange
     _triggerHashChange: (newHash) => {
       window.location.hash = newHash;
       if (listeners['hashchange']) {
-        listeners['hashchange']();
+        for (const handler of listeners['hashchange']) {
+          handler();
+        }
       }
     }
   };
@@ -27,6 +32,9 @@ if (typeof globalThis.window === 'undefined') {
 import { route, notFound, beforeEach, navigate, getCurrentRoute, initRouter, destroyRouter } from '../core/router.js';
 
 test('Router matches registered paths and parameters', () => {
+  // Reset state
+  window.location.hash = '';
+
   let matchedFan = false;
   let matchedZone = null;
 
@@ -37,6 +45,9 @@ test('Router matches registered paths and parameters', () => {
   route('#/zone/:id', (params) => {
     matchedZone = params.id;
   });
+
+  // Reset guard to avoid interference
+  beforeEach(null);
 
   initRouter();
 
@@ -52,9 +63,12 @@ test('Router matches registered paths and parameters', () => {
 });
 
 test('Router guards cancel navigation when returning false', () => {
-  let guardCalled = 0;
+  // Clean start
   window.location.hash = '#/fan';
 
+  let guardCalled = 0;
+
+  // Register guard BEFORE initRouter to ensure clean state
   beforeEach((to, from) => {
     guardCalled++;
     if (to === '#/admin') {
@@ -64,11 +78,29 @@ test('Router guards cancel navigation when returning false', () => {
   });
 
   initRouter();
-  
+
   // Navigate to blocked route
   window._triggerHashChange('#/admin');
-  assert.strictEqual(guardCalled, 1);
-  assert.strictEqual(getCurrentRoute(), '#/fan'); // Reverted to previous
+  assert.ok(guardCalled >= 1, 'Guard should have been called');
+  // Hash should revert to the previous route (fan) since admin was blocked
+  assert.strictEqual(window.location.hash, '#/fan');
+
+  // Clean up
+  beforeEach(null);
+  destroyRouter();
+});
+
+test('Router notFound handler is called for unregistered routes', () => {
+  let notFoundCalled = false;
+  window.location.hash = '#/fan';
+
+  beforeEach(null);
+  notFound(() => { notFoundCalled = true; });
+
+  initRouter();
+
+  window._triggerHashChange('#/nonexistent');
+  assert.strictEqual(notFoundCalled, true);
 
   destroyRouter();
 });

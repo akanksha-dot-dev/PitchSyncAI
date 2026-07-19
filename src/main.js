@@ -21,7 +21,7 @@ import { initRouter, route } from './core/router.js';
 import { restoreSnapshot, startAutoSave, saveSnapshot } from './core/cache.js';
 import { h, $ } from './utils/dom.js';
 import { announce } from './utils/a11y.js';
-import { generateCrowdData, MOCK_TICKET } from './utils/constants.js';
+import { generateCrowdData, MOCK_TICKET, LANGUAGES } from './utils/constants.js';
 
 // Components
 import { createHeader } from './components/header.js';
@@ -81,14 +81,17 @@ async function init() {
     // 8. Setup online/offline detection
     setupNetworkDetection();
 
-    // 9. Initialize validation wizard
+    // 9. Setup dynamic language/direction updates for accessibility
+    setupLanguageSync();
+
+    // 10. Initialize validation wizard
     initValidationWizard();
 
-    // 10. Hide loading screen
+    // 11. Hide loading screen
     hideLoadingScreen();
 
-    console.info('[App] FIFA MatchDay GenAI Nexus initialized');
-    announce('FIFA MatchDay GenAI Nexus is ready');
+    console.info('[App] PitchSync AI initialized');
+    announce('PitchSync AI is ready');
 
   } catch (err) {
     console.error('[App] Initialization error:', err);
@@ -240,6 +243,22 @@ function setupNetworkDetection() {
   window.addEventListener('offline', () => {
     state.isOnline = false;
     announce('You are offline. Some features may be limited.');
+  });
+}
+
+/**
+ * Sync the document's `lang` and `dir` attributes when the user
+ * switches language. Essential for RTL support (Arabic) and for
+ * assistive technologies that read the `lang` attribute to select
+ * the correct speech synthesiser voice.
+ */
+function setupLanguageSync() {
+  subscribe('language', (langCode) => {
+    const langInfo = LANGUAGES[langCode];
+    if (langInfo) {
+      document.documentElement.lang = langCode;
+      document.documentElement.dir = langInfo.dir || 'ltr';
+    }
   });
 }
 

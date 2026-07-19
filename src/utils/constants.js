@@ -38,6 +38,7 @@ export const LANGUAGES = {
   zh: { name: '中文', flag: '🇨🇳', dir: 'ltr' },
   hi: { name: 'हिन्दी', flag: '🇮🇳', dir: 'ltr' },
 };
+Object.freeze(LANGUAGES);
 
 // ---- FIFA 2026 Venues ----
 export const VENUES = [
@@ -85,6 +86,7 @@ export const STADIUM_ZONES = {
   vip_lounge: { id: 'vip_lounge', name: 'VIP Lounge', type: 'vip', x: 200, y: 200, capacity: 1500 },
   field: { id: 'field', name: 'Playing Field', type: 'field', x: 200, y: 200, capacity: 0 },
 };
+Object.freeze(STADIUM_ZONES);
 
 // ---- Zone Type Icons ----
 export const ZONE_ICONS = {
@@ -97,6 +99,7 @@ export const ZONE_ICONS = {
   restroom: '🚻',
   field: '⚽',
 };
+Object.freeze(ZONE_ICONS);
 
 // ---- Accessibility Options ----
 export const ACCESSIBILITY_OPTIONS = [
@@ -105,6 +108,7 @@ export const ACCESSIBILITY_OPTIONS = [
   { id: 'hearingImpairment', label: 'Hearing Support', icon: '👂' },
   { id: 'lowSensory', label: 'Low Sensory Path', icon: '🤫' },
 ];
+Object.freeze(ACCESSIBILITY_OPTIONS);
 
 // ---- Transit Modes ----
 export const TRANSIT_MODES = {
@@ -113,6 +117,7 @@ export const TRANSIT_MODES = {
   shuttle: { icon: '🚐', name: 'Event Shuttle', color: '#D4A843' },
   rideshare: { icon: '🚗', name: 'Rideshare', color: '#7C3AED' },
 };
+Object.freeze(TRANSIT_MODES);
 
 // ---- Mock Transit Schedules ----
 export function generateTransitSchedules() {
@@ -199,6 +204,7 @@ export const QUICK_REPLIES = {
     '🎟️ Mon billet',
   ],
 };
+Object.freeze(QUICK_REPLIES);
 
 // ---- GenAI Response Templates ----
 export const RESPONSE_TEMPLATES = {
@@ -255,6 +261,7 @@ export const OPS_ALERT_TEMPLATES = [
   { severity: 'info', zone: 'medical_1', message: 'Medical Station 1 reporting normal activity. 2 minor incidents handled.', action: 'No action required' },
   { severity: 'warning', zone: 'gate_e', message: 'Transit shuttle backup causing crowd buildup at Gate E drop-off.', action: 'Coordinate with transit authority' },
 ];
+Object.freeze(OPS_ALERT_TEMPLATES);
 
 // ---- Resource Types ----
 export const RESOURCE_TYPES = [
@@ -263,6 +270,7 @@ export const RESOURCE_TYPES = [
   { id: 'crowdControl', name: 'Crowd Control', icon: '🚧', color: '#EAB308', total: 80 },
   { id: 'accessibility', name: 'Accessibility', icon: '♿', color: '#16A34A', total: 30 },
 ];
+Object.freeze(RESOURCE_TYPES);
 
 // ---- Mock Wayfinding Routes ----
 export const MOCK_ROUTES = {
