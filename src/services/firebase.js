@@ -152,7 +152,7 @@ function startAlertSimulation() {
     for (const fn of alertSubscribers.values()) {
       try {
         fn(alert);
-      } catch (err) {
+      } catch (_err) {
         // Silent catch
       }
     }
@@ -186,7 +186,7 @@ export function pushAlert(alert) {
   for (const fn of alertSubscribers.values()) {
     try {
       fn(fullAlert);
-    } catch (err) {
+    } catch (_err) {
       // Silent catch
     }
   }
@@ -204,10 +204,10 @@ export function getCrowdSnapshot() {
 /**
  * Simulate network sync for offline state synchronization.
  *
- * @param {string} deviceId - Client device ID
+ * @param {string} _deviceId - Client device ID
  * @returns {Promise<{ synced: boolean, timestamp: number }>} Sync result
  */
-export async function syncState(deviceId) {
+export async function syncState(_deviceId) {
   await new Promise(r => setTimeout(r, 200));
   return { synced: true, timestamp: Date.now() };
 }

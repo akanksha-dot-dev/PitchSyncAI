@@ -40,11 +40,11 @@
  * pipeline and response contract.
  */
 
-import { RESPONSE_TEMPLATES, MOCK_ROUTES, MOCK_TICKET, STADIUM_ZONES } from '../utils/constants.js';
-import { translateText, detectLanguage } from './translation.js';
+import { RESPONSE_TEMPLATES, MOCK_TICKET, STADIUM_ZONES } from '../utils/constants.js';
+import { detectLanguage } from './translation.js';
 import { getRoute } from './maps.js';
 import { getSchedule } from './transit.js';
-import { compressContext, assembleContext, detectFollowUp } from './context-manager.js';
+import { compressContext, assembleContext } from './context-manager.js';
 import { sanitizeHTML, sanitizePromptInjection } from '../utils/validators.js';
 
 // ---- Intent Patterns ----
