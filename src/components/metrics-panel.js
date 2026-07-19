@@ -95,7 +95,7 @@ function createMetricCard(id, label, value, unit, color, icon) {
  * @param {number[]} data - Array of numeric data points
  * @param {string} color - Hex line color
  */
-function drawSparkline(containerId, data, _color) {
+function drawSparkline(containerId, data, color) {
   const container = $(`#${containerId}`);
   if (!container) return;
 
