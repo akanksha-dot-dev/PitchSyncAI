@@ -12,6 +12,8 @@
  * subscriber never disrupts other listeners.
  */
 
+import { logger } from '../utils/logger.js';
+
 /** @type {Map<string, Set<Function>>} */
 const listeners = new Map();
 
@@ -79,7 +81,7 @@ export function emit(event, data) {
       try {
         fn(data);
       } catch (err) {
-        console.error(`[Events] Handler error for "${event}":`, err);
+        logger.error('Events', `Handler error for "${event}":`, err);
       }
     }
   }
@@ -91,7 +93,7 @@ export function emit(event, data) {
       try {
         fn(data);
       } catch (err) {
-        console.error(`[Events] Once handler error for "${event}":`, err);
+        logger.error('Events', `Once handler error for "${event}":`, err);
       }
     }
     onceListeners.delete(event);
@@ -107,7 +109,7 @@ export function emit(event, data) {
         try {
           fn(data, event);
         } catch (err) {
-          console.error(`[Events] Wildcard handler error for "${wildcardKey}":`, err);
+          logger.error('Events', `Wildcard handler error for "${wildcardKey}":`, err);
         }
       }
     }

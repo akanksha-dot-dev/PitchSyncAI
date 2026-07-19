@@ -91,11 +91,11 @@ async function init() {
     // 11. Hide loading screen
     hideLoadingScreen();
 
-    console.info('[App] PitchSync AI initialized');
+    logger.info('App', 'PitchSync AI initialized');
     announce('PitchSync AI is ready');
 
   } catch (err) {
-    console.error('[App] Initialization error:', err);
+    logger.error('App', 'Initialization error:', err);
     hideLoadingScreen();
     showError('Failed to initialize the application. Please refresh the page.');
   }
