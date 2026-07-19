@@ -8,7 +8,7 @@ test('getRoute returns standard route', async () => {
   assert.ok(result.steps.length > 0);
   assert.ok(result.totalTime);
   assert.ok(result.totalDistance);
-  assert.strictEqual(result.accessible, false);
+  assert.ok(!result.accessible, 'Standard route should not be accessible');
 });
 
 test('getRoute returns accessible route when wheelchair is set', async () => {
