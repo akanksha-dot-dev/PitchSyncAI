@@ -9,11 +9,18 @@
  */
 
 /**
- * Create a DOM element with attributes and children
+ * Create a DOM element with attributes and children.
+ *
  * @param {string} tag - HTML tag name
  * @param {object} [attrs] - Attributes and properties
  * @param  {...(string|Node|Array)} children - Child nodes or text
  * @returns {HTMLElement}
+ *
+ * @example
+ * h('div', { class: 'card', onClick: handleClick },
+ *   h('h2', {}, 'Title'),
+ *   h('p', {}, 'Body text'),
+ * );
  */
 export function h(tag, attrs = {}, ...children) {
   const el = document.createElement(tag);
@@ -50,20 +57,29 @@ export function h(tag, attrs = {}, ...children) {
 }
 
 /**
- * Query a single element
- * @param {string} selector
- * @param {Element} [root]
+ * Query a single element.
+ *
+ * @param {string} selector - CSS selector
+ * @param {Element} [root] - Root element (defaults to document)
  * @returns {Element|null}
+ *
+ * @example
+ * const btn = $('#chat-send-btn');
  */
 export function $(selector, root = document) {
   return root.querySelector(selector);
 }
 
 /**
- * Query all elements
- * @param {string} selector
- * @param {Element} [root]
+ * Query all matching elements as an array.
+ *
+ * @param {string} selector - CSS selector
+ * @param {Element} [root] - Root element (defaults to document)
  * @returns {Element[]}
+ *
+ * @example
+ * const items = $$('.alert-item');
+ * items.forEach(item => item.classList.add('seen'));
  */
 export function $$(selector, root = document) {
   return Array.from(root.querySelectorAll(selector));
@@ -148,10 +164,16 @@ export function formatNumber(n) {
 }
 
 /**
- * Debounce a function
- * @param {Function} fn
- * @param {number} ms
- * @returns {Function}
+ * Debounce a function — delays execution until after `ms` milliseconds
+ * of inactivity. Useful for resize handlers and search-as-you-type.
+ *
+ * @param {Function} fn - Function to debounce
+ * @param {number} [ms=300] - Delay in milliseconds
+ * @returns {Function} Debounced wrapper
+ *
+ * @example
+ * const debouncedSearch = debounce(search, 250);
+ * input.addEventListener('input', debouncedSearch);
  */
 export function debounce(fn, ms = 300) {
   let timer;
@@ -162,10 +184,16 @@ export function debounce(fn, ms = 300) {
 }
 
 /**
- * Throttle a function
- * @param {Function} fn
- * @param {number} ms
- * @returns {Function}
+ * Throttle a function — limits execution to once every `ms` milliseconds.
+ * Useful for scroll handlers and crowd data refresh.
+ *
+ * @param {Function} fn - Function to throttle
+ * @param {number} [ms=300] - Minimum interval in milliseconds
+ * @returns {Function} Throttled wrapper
+ *
+ * @example
+ * const throttledUpdate = throttle(updateHeatmap, 500);
+ * crowdStream.on('data', throttledUpdate);
  */
 export function throttle(fn, ms = 300) {
   let last = 0;
