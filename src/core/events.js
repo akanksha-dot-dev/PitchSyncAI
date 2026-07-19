@@ -19,10 +19,15 @@ const listeners = new Map();
 const onceListeners = new Map();
 
 /**
- * Register an event listener
+ * Register an event listener.
+ *
  * @param {string} event - Event name (supports namespacing with ':')
  * @param {Function} handler - Callback
  * @returns {Function} Unsubscribe function
+ *
+ * @example
+ * const unsub = on('mode:change', (mode) => console.log(mode));
+ * // Later: unsub();
  */
 export function on(event, handler) {
   if (!listeners.has(event)) {
@@ -57,9 +62,14 @@ export function off(event, handler) {
 }
 
 /**
- * Emit an event with data
+ * Emit an event with data. Fires direct, once, and wildcard listeners.
+ *
  * @param {string} event - Event name
  * @param {*} data - Event payload
+ *
+ * @example
+ * emit('mode:change', 'ops');
+ * emit('fan:message', { text: 'Hello' });
  */
 export function emit(event, data) {
   // Fire direct listeners
