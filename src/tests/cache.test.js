@@ -2,6 +2,16 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 import { memSet, memGet, memClear, cacheSet, cacheGet, getCacheStats, saveSnapshot, loadSnapshot } from '../core/cache.js';
 
+if (typeof globalThis.localStorage === 'undefined') {
+  const store = new Map();
+  globalThis.localStorage = {
+    getItem: (k) => store.get(k) || null,
+    setItem: (k, v) => store.set(k, String(v)),
+    removeItem: (k) => store.delete(k),
+    clear: () => store.clear(),
+  };
+}
+
 test('memSet and memGet store and retrieve values', () => {
   memClear();
   memSet('test_key', { data: 123 }, 60000);
