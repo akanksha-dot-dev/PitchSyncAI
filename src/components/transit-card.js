@@ -7,16 +7,14 @@
  */
 
 import { h, $, formatTime } from '../utils/dom.js';
-import { announce } from '../utils/a11y.js';
-import state, { subscribe } from '../core/state.js';
+import state from '../core/state.js';
 import { getSchedule, getDepartureCountdown, getTransitMode } from '../services/transit.js';
 import { TRANSIT_MODES } from '../utils/constants.js';
 
-let countdownTimer = null;
-
 /**
- * Create the transit schedules panel
- * @returns {HTMLElement}
+ * Create the transit schedules panel component.
+ *
+ * @returns {HTMLElement} Transit panel DOM element
  */
 export function createTransitPanel() {
   const panel = h('div', {
@@ -42,14 +40,14 @@ export function createTransitPanel() {
   // Initial render
   setTimeout(() => refreshTransit(), 100);
 
-  // Auto-refresh every 60 seconds
-  countdownTimer = setInterval(() => updateCountdowns(), 15000);
+  // Auto-refresh every 15 seconds
+  setInterval(() => updateCountdowns(), 15000);
 
   return panel;
 }
 
 /**
- * Refresh transit schedules
+ * Refresh transit departure list items in DOM.
  */
 function refreshTransit() {
   const list = $('#transit-list');
@@ -78,9 +76,10 @@ function refreshTransit() {
 }
 
 /**
- * Create a single transit card
- * @param {object} schedule
- * @returns {HTMLElement}
+ * Create a single transit departure card DOM element.
+ *
+ * @param {{ id: string, mode: string, line: string, destination: string, departure: string, delay: number, accessible: boolean, capacity: number }} schedule - Transit schedule object
+ * @returns {HTMLElement} Transit card element
  */
 function createTransitCard(schedule) {
   const countdown = getDepartureCountdown(schedule.departure);
@@ -131,7 +130,7 @@ function createTransitCard(schedule) {
 }
 
 /**
- * Update all departure countdowns
+ * Update all DOM countdown timers dynamically without full re-render.
  */
 function updateCountdowns() {
   const countdownEls = document.querySelectorAll('[data-countdown]');
@@ -140,18 +139,13 @@ function updateCountdowns() {
     if (departure) {
       const countdown = getDepartureCountdown(departure);
       el.textContent = countdown.text;
-      el.className = `text-lg font-bold ${countdown.isUrgent ? 'text-red-600' : 'text-slate-800'}`;
+      if (countdown.isUrgent) {
+        el.classList.add('text-red-600');
+        el.classList.remove('text-slate-800');
+      } else {
+        el.classList.remove('text-red-600');
+        el.classList.add('text-slate-800');
+      }
     }
   }
 }
-
-/**
- * Cleanup timer
- */
-export function destroyTransitPanel() {
-  if (countdownTimer) {
-    clearInterval(countdownTimer);
-    countdownTimer = null;
-  }
-}
-
