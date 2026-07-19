@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { memSet, memGet, memClear, cacheSet, cacheGet, getCacheStats, saveSnapshot, loadSnapshot } from '../core/cache.js';
+import { memSet, memGet, memClear, cacheSet, cacheGet, getCacheStats, saveSnapshot, restoreSnapshot } from '../core/cache.js';
 
 if (typeof globalThis.localStorage === 'undefined') {
   const store = new Map();
@@ -42,9 +42,9 @@ test('getCacheStats returns memory and storage metrics', () => {
   assert.ok(stats.memoryKeys >= 1);
 });
 
-test('saveSnapshot and loadSnapshot state persistence', () => {
+test('saveSnapshot and restoreSnapshot state persistence', () => {
   const mockState = { appMode: 'fan', language: 'es' };
   saveSnapshot(mockState);
-  const loaded = loadSnapshot();
+  const loaded = restoreSnapshot();
   assert.ok(loaded);
 });
