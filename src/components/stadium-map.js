@@ -82,7 +82,7 @@ export function createStadiumMap(mode = 'density') {
  * @param {'density'|'wayfinding'} mode - Visualization mode
  * @returns {HTMLElement} Container div wrapping the SVG element
  */
-function createStadiumSVG(mode) {
+function createStadiumSVG(_mode) {
   const svgNS = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(svgNS, 'svg');
   svg.setAttribute('viewBox', '0 0 400 360');

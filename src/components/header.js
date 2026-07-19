@@ -10,7 +10,7 @@
  */
 
 import { h, $ } from '../utils/dom.js';
-import { setAria, announce } from '../utils/a11y.js';
+import { announce } from '../utils/a11y.js';
 import state, { subscribe } from '../core/state.js';
 import { emit } from '../core/events.js';
 import { LANGUAGES } from '../utils/constants.js';

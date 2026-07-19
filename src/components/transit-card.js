@@ -11,6 +11,8 @@ import state from '../core/state.js';
 import { getSchedule, getDepartureCountdown, getTransitMode } from '../services/transit.js';
 import { TRANSIT_MODES } from '../utils/constants.js';
 
+let countdownTimer = null;
+
 /**
  * Create the transit schedules panel component.
  *

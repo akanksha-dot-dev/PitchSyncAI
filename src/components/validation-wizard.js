@@ -176,7 +176,7 @@ function createWizardStep(number, status, title, description) {
  * @param {object} alert - Ops alert payload
  * @returns {{ accessibilityConflict: boolean, accessibilityDetail: string, transitConflict: boolean, estimatedFlow: number, transitCapacity: number, overallStatus: string, density: number, zoneName: string }}
  */
-function runValidationChecks(zoneId, alert) {
+function runValidationChecks(zoneId, _alert) {
   const zone = STADIUM_ZONES[zoneId];
   const crowdInfo = state.crowdData?.[zoneId];
   const density = crowdInfo?.density || 50;
