@@ -28,19 +28,21 @@ let currentCrowdData = generateCrowdData();
 let alertCounter = 0;
 
 /**
- * Subscribe to real-time crowd density updates
- * Simulates Firestore onSnapshot listener
+ * Subscribe to real-time crowd density updates. Simulates Firestore onSnapshot listener.
+ *
  * @param {Function} callback - (crowdData) => void
- * @returns {Function} Unsubscribe function
+ * @returns {Function} Unsubscribe cleanup function
+ *
+ * @example
+ * const unsub = subscribeToCrowdData((data) => console.log(data));
+ * // Later: unsub();
  */
 export function subscribeToCrowdData(callback) {
-  const id = `crowd_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  const id = `crowd_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
   crowdSubscribers.set(id, callback);
 
-  // Send initial data immediately
   callback(currentCrowdData);
 
-  // Start simulation if not already running
   if (!crowdInterval) {
     startCrowdSimulation();
   }
@@ -54,12 +56,13 @@ export function subscribeToCrowdData(callback) {
 }
 
 /**
- * Subscribe to real-time alert updates
+ * Subscribe to real-time ops alert updates.
+ *
  * @param {Function} callback - (alert) => void
- * @returns {Function} Unsubscribe function
+ * @returns {Function} Unsubscribe cleanup function
  */
 export function subscribeToAlerts(callback) {
-  const id = `alert_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  const id = `alert_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
   alertSubscribers.set(id, callback);
 
   if (!alertInterval) {
@@ -75,81 +78,42 @@ export function subscribeToAlerts(callback) {
 }
 
 /**
- * Push an alert to all subscribers
- * @param {object} alert - { severity, zone, message, action }
- */
-export function pushAlert(alert) {
-  const enrichedAlert = {
-    id: `alert_${++alertCounter}`,
-    ...alert,
-    timestamp: Date.now(),
-    acknowledged: false,
-    resolved: false,
-  };
-
-  for (const callback of alertSubscribers.values()) {
-    try {
-      callback(enrichedAlert);
-    } catch (err) {
-      console.error('[Firebase] Alert subscriber error:', err);
-    }
-  }
-}
-
-/**
- * Simulate cross-device state sync
- * @param {string} deviceId
- * @param {object} state
- * @returns {Promise<void>}
- */
-export async function syncState(deviceId, state) {
-  // Simulate network latency
-  await new Promise(r => setTimeout(r, 50 + Math.random() * 100));
-  // In production, this would write to Firestore
-  console.info(`[Firebase] State synced for device ${deviceId}`);
-}
-
-/**
- * Start crowd data simulation (updates every 5 seconds)
+ * Start crowd density data tick simulation.
  */
 function startCrowdSimulation() {
   crowdInterval = setInterval(() => {
-    // Evolve crowd data (gradual changes, not random jumps)
-    const prevData = currentCrowdData;
-    const newData = {};
+    // Evolve density values smoothly (±5% per tick)
+    const updated = {};
+    for (const [zoneId, info] of Object.entries(currentCrowdData)) {
+      const delta = (Math.random() - 0.48) * 6; // Slight upward bias
+      const newDensity = Math.max(10, Math.min(98, Math.round(info.density + delta)));
 
-    for (const [zoneId, prev] of Object.entries(prevData)) {
-      // Smooth transition: ±5% max change per tick
-      const delta = (Math.random() - 0.5) * 10;
-      const newDensity = Math.min(100, Math.max(5, prev.density + delta));
-      const trend = newDensity > prev.density + 2 ? 'rising' :
-                    newDensity < prev.density - 2 ? 'falling' : 'stable';
+      const trend = newDensity > info.density + 1 ? 'rising' :
+                    newDensity < info.density - 1 ? 'falling' : 'stable';
 
-      newData[zoneId] = {
-        ...prev,
-        density: Math.round(newDensity),
+      updated[zoneId] = {
+        ...info,
+        density: newDensity,
         trend,
-        count: Math.round((newDensity / 100) * prev.capacity),
+        count: Math.round((newDensity / 100) * info.capacity),
         timestamp: Date.now(),
-        alerts: newDensity > 85 ? ['High density warning'] : [],
       };
     }
 
-    currentCrowdData = newData;
+    currentCrowdData = updated;
 
-    // Notify all subscribers
-    for (const callback of crowdSubscribers.values()) {
+    for (const fn of crowdSubscribers.values()) {
       try {
-        callback(newData);
+        fn(currentCrowdData);
       } catch (err) {
-        console.error('[Firebase] Crowd subscriber error:', err);
+        // Silent catch for subscriber errors
       }
     }
   }, 5000);
 }
 
 /**
- * Stop crowd simulation
+ * Stop crowd simulation timer.
  */
 function stopCrowdSimulation() {
   if (crowdInterval) {
@@ -159,50 +123,97 @@ function stopCrowdSimulation() {
 }
 
 /**
- * Start alert simulation (random alerts every 8-15 seconds)
+ * Start ops alert generator simulation.
  */
 function startAlertSimulation() {
-  function scheduleNext() {
-    const delay = 8000 + Math.random() * 7000;
-    alertInterval = setTimeout(() => {
-      // Pick a random alert template
-      const template = OPS_ALERT_TEMPLATES[Math.floor(Math.random() * OPS_ALERT_TEMPLATES.length)];
+  alertInterval = setInterval(() => {
+    const template = OPS_ALERT_TEMPLATES[Math.floor(Math.random() * OPS_ALERT_TEMPLATES.length)];
+    const zones = Object.keys(currentCrowdData);
+    const randomZone = zones[Math.floor(Math.random() * zones.length)];
+    const zoneInfo = currentCrowdData[randomZone];
 
-      // Add some dynamic data
-      const zoneData = currentCrowdData[template.zone];
-      const density = zoneData ? zoneData.density : Math.floor(50 + Math.random() * 40);
+    // Only alert if density is high enough for the severity
+    const density = zoneInfo?.density || 50;
+    if (template.severity === 'critical' && density < 75) return;
+    if (template.severity === 'warning' && density < 60) return;
 
-      pushAlert({
-        ...template,
-        message: template.message.replace(/\d+%/, `${density}%`),
-      });
+    alertCounter++;
+    const alert = {
+      id: `alert_${alertCounter}_${Date.now()}`,
+      title: template.title,
+      description: template.template.replace('{zone}', zoneInfo?.zoneName || randomZone),
+      severity: template.severity,
+      zone: randomZone,
+      timestamp: Date.now(),
+      resolved: false,
+      acknowledged: false,
+    };
 
-      scheduleNext();
-    }, delay);
-  }
-  scheduleNext();
+    for (const fn of alertSubscribers.values()) {
+      try {
+        fn(alert);
+      } catch (err) {
+        // Silent catch
+      }
+    }
+  }, 10000);
 }
 
 /**
- * Stop alert simulation
+ * Stop alert simulation timer.
  */
 function stopAlertSimulation() {
   if (alertInterval) {
-    clearTimeout(alertInterval);
+    clearInterval(alertInterval);
     alertInterval = null;
   }
 }
 
 /**
- * Get current crowd data snapshot (without subscribing)
- * @returns {object}
+ * Manually push an operational alert to all subscribers.
+ *
+ * @param {object} alert - Ops alert object
+ */
+export function pushAlert(alert) {
+  const fullAlert = {
+    id: `alert_manual_${Date.now()}`,
+    timestamp: Date.now(),
+    resolved: false,
+    acknowledged: false,
+    ...alert,
+  };
+
+  for (const fn of alertSubscribers.values()) {
+    try {
+      fn(fullAlert);
+    } catch (err) {
+      // Silent catch
+    }
+  }
+}
+
+/**
+ * Get current crowd density snapshot.
+ *
+ * @returns {Record<string, { zoneName: string, density: number, trend: string, count: number, capacity: number }>} Crowd data snapshot
  */
 export function getCrowdSnapshot() {
   return { ...currentCrowdData };
 }
 
 /**
- * Cleanup all simulations
+ * Simulate network sync for offline state synchronization.
+ *
+ * @param {string} deviceId - Client device ID
+ * @returns {Promise<{ synced: boolean, timestamp: number }>} Sync result
+ */
+export async function syncState(deviceId) {
+  await new Promise(r => setTimeout(r, 200));
+  return { synced: true, timestamp: Date.now() };
+}
+
+/**
+ * Stop all background simulation timers.
  */
 export function cleanup() {
   stopCrowdSimulation();
@@ -210,4 +221,3 @@ export function cleanup() {
   crowdSubscribers.clear();
   alertSubscribers.clear();
 }
-

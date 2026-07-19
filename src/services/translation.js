@@ -13,7 +13,7 @@
 import { LANGUAGES } from '../utils/constants.js';
 
 // ---- Common Stadium Phrase Dictionary ----
-const PHRASE_DICT = {
+const PHRASE_DICT = Object.freeze({
   es: {
     'Where is my seat?': '¿Dónde está mi asiento?',
     'Find food nearby': 'Encontrar comida cercana',
@@ -58,132 +58,106 @@ const PHRASE_DICT = {
     'Section': 'Seção',
   },
   de: {
-    'Where is my seat?': 'Wo ist mein Sitzplatz?',
+    'Where is my seat?': 'Wo ist mein Platz?',
     'Find food nearby': 'Essen in der Nähe finden',
+    'Show transit schedule': 'Fahrplan anzeigen',
     'I need medical help': 'Ich brauche medizinische Hilfe',
     'Gate': 'Tor',
-    'Section': 'Abschnitt',
+    'Section': 'Sektor',
   },
   ja: {
     'Where is my seat?': '私の席はどこですか？',
     'Find food nearby': '近くの食べ物を探す',
+    'Show transit schedule': '時刻表を表示',
+    'I need medical help': '救護が必要です',
     'Gate': 'ゲート',
-    'Section': 'セクション',
   },
   ko: {
-    'Where is my seat?': '제 좌석은 어디인가요?',
+    'Where is my seat?': '내 좌석이 어디인가요?',
     'Find food nearby': '근처 음식 찾기',
-    'Gate': '게이트',
+    'I need medical help': '의료 도움이 필요합니다',
   },
   zh: {
     'Where is my seat?': '我的座位在哪里？',
-    'Find food nearby': '查找附近的食物',
-    'Gate': '入口',
-    'Section': '区域',
+    'Find food nearby': '寻找附近的食物',
+    'I need medical help': '需要医疗帮助',
   },
   hi: {
     'Where is my seat?': 'मेरी सीट कहाँ है?',
-    'Find food nearby': 'पास में खाना खोजें',
-    'Gate': 'गेट',
+    'Find food nearby': 'पास का खाना खोजें',
+    'I need medical help': 'मुझे चिकित्सा सहायता चाहिए',
   },
-};
-
-// ---- Language Detection Patterns ----
-const LANG_PATTERNS = {
-  es: /[¿¡áéíóúñü]/i,
-  fr: /[àâçéèêëîïôùûüÿœæ]/i,
-  ar: /[\u0600-\u06FF]/,
-  ja: /[\u3040-\u309F\u30A0-\u30FF]/,
-  ko: /[\uAC00-\uD7AF]/,
-  zh: /[\u4E00-\u9FFF]/,
-  hi: /[\u0900-\u097F]/,
-  pt: /[ãõçáéíóú]/i,
-  de: /[äöüß]/i,
-};
+});
 
 /**
- * Detect the language of input text
- * @param {string} text
- * @returns {{ language: string, confidence: number }}
+ * Detect language of input text using Unicode script analysis & phrase matching.
+ *
+ * @param {string} text - User message input string
+ * @returns {string} ISO 639-1 language code ('en', 'es', 'fr', 'ar', etc.)
+ *
+ * @example
+ * detectLanguage('¿Dónde está mi asiento?') // => 'es'
+ * detectLanguage('私の席はどこですか？')      // => 'ja'
  */
 export function detectLanguage(text) {
-  if (!text || typeof text !== 'string') {
-    return { language: 'en', confidence: 0.5 };
-  }
+  if (!text || typeof text !== 'string') return 'en';
 
-  // Check character patterns
-  for (const [lang, pattern] of Object.entries(LANG_PATTERNS)) {
-    if (pattern.test(text)) {
-      return { language: lang, confidence: 0.85 };
-    }
-  }
+  // Script-based detection
+  if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(text)) return 'ja';
+  if (/[\uac00-\ud7af]/.test(text)) return 'ko';
+  if (/[\u0600-\u06ff]/.test(text)) return 'ar';
+  if (/[\u0900-\u097f]/.test(text)) return 'hi';
 
-  // Check common words
   const lower = text.toLowerCase();
-  const wordPatterns = {
-    es: ['hola', 'dónde', 'ayuda', 'necesito', 'por favor', 'gracias'],
-    fr: ['bonjour', 'merci', 'aide', 'comment', 's\'il vous plaît'],
-    pt: ['olá', 'obrigado', 'ajuda', 'onde', 'por favor'],
-    de: ['hallo', 'hilfe', 'danke', 'bitte', 'wo ist'],
-  };
 
-  for (const [lang, words] of Object.entries(wordPatterns)) {
-    if (words.some(w => lower.includes(w))) {
-      return { language: lang, confidence: 0.75 };
-    }
-  }
+  // Spanish keywords
+  if (/\b(dónde|dónde|asiento|comida|médica|hola|gracias|puerta|por favor|ayuda)\b/.test(lower)) return 'es';
+  // French keywords
+  if (/\b(où|siège|nourriture|médicale|bonjour|merci|porte|s'il vous plaît|aide)\b/.test(lower)) return 'fr';
+  // Portuguese keywords
+  if (/\b(onde|assento|comida|médica|olá|obrigado|portão|por favor|ajuda)\b/.test(lower)) return 'pt';
+  // German keywords
+  if (/\b(wo|platz|essen|hilfe|hallo|danke|tor|bitte)\b/.test(lower)) return 'de';
 
-  // Default to English
-  return { language: 'en', confidence: 0.90 };
+  return 'en';
 }
 
 /**
- * Translate text to a target language (mocked)
- * Simulates Google Cloud Translation API
- * @param {string} text
- * @param {string} targetLang - ISO 639-1 code
- * @returns {Promise<{ translatedText: string, sourceLang: string }>}
+ * Translate text string into target language using local phrase dictionary or echo fallback.
+ *
+ * @param {string} text - Text phrase to translate
+ * @param {string} targetLang - Target ISO 639-1 language code (e.g. 'es')
+ * @returns {Promise<{ translatedText: string, sourceLang: string, targetLang: string }>} Translation result payload
+ *
+ * @example
+ * const res = await translateText('Where is my seat?', 'es');
+ * console.log(res.translatedText); // => '¿Dónde está mi asiento?'
  */
-export async function translateText(text, targetLang) {
-  // Simulate API latency (100-300ms)
-  await new Promise(r => setTimeout(r, 100 + Math.random() * 200));
-
-  if (targetLang === 'en') {
-    return { translatedText: text, sourceLang: 'en' };
-  }
-
-  const dict = PHRASE_DICT[targetLang];
-  if (dict) {
-    // Check exact match in dictionary
-    if (dict[text]) {
-      return { translatedText: dict[text], sourceLang: 'en' };
-    }
-
-    // Check partial match
-    for (const [eng, translated] of Object.entries(dict)) {
-      if (text.toLowerCase().includes(eng.toLowerCase())) {
-        const result = text.replace(new RegExp(eng, 'gi'), translated);
-        return { translatedText: result, sourceLang: 'en' };
+export function translateText(text, targetLang) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      if (!targetLang || targetLang === 'en') {
+        resolve({ translatedText: text, sourceLang: 'en', targetLang: 'en' });
+        return;
       }
-    }
-  }
 
-  // Fallback: return original with language indicator
-  const langInfo = LANGUAGES[targetLang];
-  return {
-    translatedText: `[${langInfo?.name || targetLang}] ${text}`,
-    sourceLang: 'en',
-  };
+      const dict = PHRASE_DICT[targetLang];
+      const translated = dict?.[text] || text;
+
+      resolve({
+        translatedText: translated,
+        sourceLang: detectLanguage(text),
+        targetLang,
+      });
+    }, 100);
+  });
 }
 
 /**
- * Get all supported languages
- * @returns {Array<{ code: string, name: string, flag: string }>}
+ * Get list of all supported stadium languages and metadata.
+ *
+ * @returns {Array<{ code: string, name: string, nativeName: string, flag: string, rtl?: boolean }>} Array of language objects
  */
 export function getSupportedLanguages() {
-  return Object.entries(LANGUAGES).map(([code, info]) => ({
-    code,
-    ...info,
-  }));
+  return Object.values(LANGUAGES);
 }
-
