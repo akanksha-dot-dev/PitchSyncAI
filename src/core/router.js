@@ -28,9 +28,14 @@ let currentRoute = '';
 let beforeEachGuard = null;
 
 /**
- * Register a route handler
- * @param {string} path - Route path (e.g., '#/fan', '#/ops')
+ * Register a route handler.
+ *
+ * @param {string} path - Route path (e.g., '#/fan', '#/ops', '#/zone/:id')
  * @param {Function} handler - (params) => void
+ *
+ * @example
+ * route('#/fan', () => renderFanMode());
+ * route('#/zone/:id', (params) => showZone(params.id));
  */
 export function route(path, handler) {
   routes.set(path, handler);
@@ -45,8 +50,16 @@ export function notFound(handler) {
 }
 
 /**
- * Register a global before-each navigation guard
- * @param {Function} guard - (to, from) => boolean (return false to cancel)
+ * Register a global before-each navigation guard.
+ * Return `false` to cancel the navigation.
+ *
+ * @param {Function} guard - (to, from) => boolean
+ *
+ * @example
+ * beforeEach((to, from) => {
+ *   if (to === '#/admin' && !isAuthenticated()) return false;
+ *   return true;
+ * });
  */
 export function beforeEach(guard) {
   beforeEachGuard = guard;
