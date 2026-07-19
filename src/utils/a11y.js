@@ -18,9 +18,14 @@
  */
 
 /**
- * Announce a message to screen readers via an ARIA live region
- * @param {string} message
- * @param {'polite'|'assertive'} [priority='polite']
+ * Announce a message to screen readers via an ARIA live region.
+ *
+ * @param {string} message - Text to announce
+ * @param {'polite'|'assertive'} [priority='polite'] - ARIA live priority
+ *
+ * @example
+ * announce('Switched to Ops Command mode');
+ * announce('Emergency alert: evacuate Gate A', 'assertive');
  */
 export function announce(message, priority = 'polite') {
   let liveRegion = document.getElementById('aria-live-region');
@@ -41,9 +46,18 @@ export function announce(message, priority = 'polite') {
 }
 
 /**
- * Create a focus trap within an element (for modals/wizards)
- * @param {Element} container
+ * Create a focus trap within an element (for modals/wizards).
+ * Traps Tab/Shift+Tab cycling within the container and restores
+ * previous focus on deactivation via Escape key.
+ *
+ * @param {Element} container - DOM element to trap focus within
  * @returns {{ activate: Function, deactivate: Function }}
+ *
+ * @example
+ * const trap = createFocusTrap(wizardDialog);
+ * trap.activate();  // Focus enters the wizard
+ * // User presses Escape or completes the wizard:
+ * trap.deactivate(); // Focus returns to previous element
  */
 export function createFocusTrap(container) {
   const focusableSelectors = [
@@ -158,10 +172,15 @@ export function setupKeyboardNav(container, itemSelector, options = {}) {
 }
 
 /**
- * Check if contrast ratio meets WCAG AAA (7:1)
- * @param {string} foreground - Hex color
- * @param {string} background - Hex color
+ * Check if contrast ratio meets WCAG AAA (7:1) threshold.
+ *
+ * @param {string} foreground - Hex color (e.g. '#1E40AF')
+ * @param {string} background - Hex color (e.g. '#FAFBFC')
  * @returns {{ ratio: number, passesAAA: boolean }}
+ *
+ * @example
+ * checkContrast('#1E40AF', '#FAFBFC');
+ * // => { ratio: 8.95, passesAAA: true }
  */
 export function checkContrast(foreground, background) {
   function hexToRgb(hex) {
