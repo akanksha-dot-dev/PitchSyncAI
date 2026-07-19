@@ -13,18 +13,18 @@
  * {@link module:genai-engine} before being rendered as AI responses.
  */
 
-import { h, $, mount, formatTime, uid, debounce } from '../utils/dom.js';
+import { h, $, formatTime, uid } from '../utils/dom.js';
 import { announce } from '../utils/a11y.js';
-import { sanitizeHTML, validateMessage } from '../utils/validators.js';
+import { validateMessage } from '../utils/validators.js';
 import { formatMarkdown } from '../utils/format.js';
 import state, { subscribe } from '../core/state.js';
-import { emit } from '../core/events.js';
 import { processMessage } from '../services/genai-engine.js';
 import { QUICK_REPLIES } from '../utils/constants.js';
 
 /**
- * Create the chat interface
- * @returns {HTMLElement}
+ * Create the chat interface region component.
+ *
+ * @returns {HTMLElement} Chat container DOM element
  */
 export function createChat() {
   const container = h('div', { class: 'chat-container', id: 'chat-container', role: 'region', 'aria-label': 'AI Chat Assistant' },
@@ -85,7 +85,7 @@ export function createChat() {
 }
 
 /**
- * Add the welcome message to chat
+ * Add the initial welcome message to chat state and DOM.
  */
 function addWelcomeMessage() {
   const welcomeMsg = {
@@ -101,7 +101,9 @@ function addWelcomeMessage() {
 }
 
 /**
- * Render a single message in the chat
+ * Render a single message object into the chat message container.
+ *
+ * @param {{ id: string, role: string, text?: string, richData?: object, timestamp: number }} msg - Chat message payload
  */
 function renderMessage(msg) {
   const container = $('#chat-messages');
@@ -129,7 +131,10 @@ function renderMessage(msg) {
 }
 
 /**
- * Render rich message content (text, routes, transit, tickets)
+ * Render rich message content array (text formatted with markdown, route cards, transit embeds).
+ *
+ * @param {object} msg - Chat message object
+ * @returns {HTMLElement[]} Array of content DOM elements
  */
 function renderMessageContent(msg) {
   const elements = [];
@@ -159,7 +164,10 @@ function renderMessageContent(msg) {
 }
 
 /**
- * Render a route card inside a chat message
+ * Render a wayfinding route card with step-by-step navigation.
+ *
+ * @param {{ accessible: boolean, steps: Array<{ step: number, instruction: string, distance: string, time: string }> }} data - Route card payload
+ * @returns {HTMLElement} Route card DOM element
  */
 function renderRouteCard(data) {
   const card = h('div', { class: 'rich-card' },
@@ -181,7 +189,10 @@ function renderRouteCard(data) {
 }
 
 /**
- * Render transit schedule inside a chat message
+ * Render transit departures schedule inside a chat message.
+ *
+ * @param {{ schedules: Array<{ mode: string, line: string, destination: string, departure: string, delay: number }> }} data - Transit payload
+ * @returns {HTMLElement} Transit schedule DOM element
  */
 function renderTransitEmbed(data) {
   const card = h('div', { class: 'rich-card' },
@@ -213,7 +224,10 @@ function renderTransitEmbed(data) {
 }
 
 /**
- * Render ticket info inside a chat message
+ * Render digital ticket info card inside a chat bubble.
+ *
+ * @param {{ ticket: { competition: string, match: string, venue: string, date: string, time: string, gate: string, section: string, row: string, seat: string, barcode: string } }} data - Ticket embed payload
+ * @returns {HTMLElement} Ticket embed DOM element
  */
 function renderTicketEmbed(data) {
   const t = data.ticket;
@@ -250,10 +264,10 @@ function renderTicketEmbed(data) {
   );
 }
 
-
-
 /**
- * Handle keyboard input in the chat
+ * Handle keydown events in chat input textarea (Enter submits, Shift+Enter newlines).
+ *
+ * @param {KeyboardEvent} e - Keyboard event
  */
 function handleInputKeydown(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
@@ -263,7 +277,9 @@ function handleInputKeydown(e) {
 }
 
 /**
- * Auto-resize textarea
+ * Auto-resize textarea height dynamically as user types.
+ *
+ * @param {Event} e - Input event
  */
 function autoResizeInput(e) {
   const el = e.target;
@@ -272,7 +288,9 @@ function autoResizeInput(e) {
 }
 
 /**
- * Handle sending a message
+ * Handle sending user input message through validation, state update, typing indicator, and GenAI pipeline.
+ *
+ * @returns {Promise<void>}
  */
 async function handleSend() {
   const input = $('#chat-input');
@@ -341,7 +359,7 @@ async function handleSend() {
 }
 
 /**
- * Show typing indicator
+ * Show animated typing indicator bubble in chat.
  */
 function showTypingIndicator() {
   const container = $('#chat-messages');
@@ -361,7 +379,7 @@ function showTypingIndicator() {
 }
 
 /**
- * Hide typing indicator
+ * Remove typing indicator element from chat.
  */
 function hideTypingIndicator() {
   const indicator = $('#typing-indicator');
@@ -369,7 +387,7 @@ function hideTypingIndicator() {
 }
 
 /**
- * Scroll chat to bottom
+ * Scroll chat message container to the bottom.
  */
 function scrollToBottom() {
   const container = $('#chat-messages');
@@ -381,7 +399,7 @@ function scrollToBottom() {
 }
 
 /**
- * Update quick reply suggestions
+ * Update quick reply suggestion buttons based on current language state.
  */
 function updateQuickReplies() {
   const container = $('#quick-replies');
@@ -407,8 +425,9 @@ function updateQuickReplies() {
 }
 
 /**
- * Send a quick reply programmatically
- * @param {string} text
+ * Programmatically send a quick reply string.
+ *
+ * @param {string} text - Message text to send
  */
 export function sendQuickReply(text) {
   const input = $('#chat-input');
@@ -417,4 +436,3 @@ export function sendQuickReply(text) {
     handleSend();
   }
 }
-
