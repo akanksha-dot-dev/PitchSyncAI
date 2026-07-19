@@ -61,7 +61,7 @@ test('integration: multi-turn conversation with context tracking', async () => {
 test('integration: accessibility profile affects all wayfinding responses', async () => {
   const profile = { accessibility: { wheelchair: true, visualImpairment: true } };
 
-  const result = await processMessage('how do I get to my seat', 'en', [], profile);
+  const result = await processMessage('navigate to gate A directions', 'en', [], profile);
   assert.strictEqual(result.type, 'route');
   assert.strictEqual(result.richData.accessible, true);
 });
