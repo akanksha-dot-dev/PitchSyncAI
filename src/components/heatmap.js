@@ -14,7 +14,13 @@ import { STADIUM_ZONES, ZONE_ICONS } from '../utils/constants.js';
 import { announce } from '../utils/a11y.js';
 
 /**
- * Get density color
+ * Get hex fill color for a zone based on crowd density percentage.
+ *
+ * @param {number} density - Crowd density percentage (0–100)
+ * @returns {string} Hex color string
+ *
+ * @example
+ * getDensityFill(85); // => '#F97316' (Orange)
  */
 function getDensityFill(density) {
   if (density >= 90) return '#EF4444';
@@ -25,8 +31,9 @@ function getDensityFill(density) {
 }
 
 /**
- * Create the ops heatmap component
- * @returns {HTMLElement}
+ * Create the Ops heatmap component container.
+ *
+ * @returns {HTMLElement} Heatmap region container element
  */
 export function createHeatmap() {
   const container = h('div', {
@@ -56,6 +63,13 @@ export function createHeatmap() {
   return container;
 }
 
+/**
+ * Create a single legend item for the density scale indicator.
+ *
+ * @param {string} color - Hex background color
+ * @param {string} label - Percentage range label text
+ * @returns {HTMLElement} Legend item DOM element
+ */
 function createLegendItem(color, label) {
   return h('div', { class: 'heatmap-legend__item' },
     h('span', { class: 'heatmap-legend__color', style: { background: color } }),
@@ -64,7 +78,9 @@ function createLegendItem(color, label) {
 }
 
 /**
- * Create Ops-specific stadium SVG (larger, more detailed)
+ * Create Ops-specific stadium SVG overlay with zones, gates, and text labels.
+ *
+ * @returns {HTMLElement} SVG wrapper container element
  */
 function createOpsStadiumSVG() {
   const svgNS = 'http://www.w3.org/2000/svg';
@@ -191,7 +207,9 @@ function createOpsStadiumSVG() {
 }
 
 /**
- * Show detailed info for a zone (Ops mode)
+ * Show detailed information card for a selected zone in Ops mode.
+ *
+ * @param {string} zoneId - Stadium zone identifier
  */
 function showOpsZoneDetail(zoneId) {
   const detailContainer = $('#heatmap-zone-detail');
@@ -244,7 +262,9 @@ function showOpsZoneDetail(zoneId) {
 }
 
 /**
- * Update heatmap zones with new data
+ * Update heatmap SVG zones and text labels when new live crowd data arrives.
+ *
+ * @param {Record<string, { zoneName: string, density: number }>} crowdData - Updated crowd dataset
  */
 function updateHeatmapZones(crowdData) {
   if (!crowdData) return;
@@ -261,4 +281,3 @@ function updateHeatmapZones(crowdData) {
     }
   }
 }
-
