@@ -7,14 +7,15 @@
  * that redistributes staff based on current crowd density.
  */
 
-import { h, $, formatNumber } from '../utils/dom.js';
+import { h, $ } from '../utils/dom.js';
 import { announce } from '../utils/a11y.js';
 import state, { subscribe } from '../core/state.js';
-import { RESOURCE_TYPES, STADIUM_ZONES } from '../utils/constants.js';
+import { RESOURCE_TYPES } from '../utils/constants.js';
 
 /**
- * Create the resource deployment panel
- * @returns {HTMLElement}
+ * Create the staff resource deployment panel component.
+ *
+ * @returns {HTMLElement} Resource panel DOM element
  */
 export function createResourcePanel() {
   const panel = h('div', {
@@ -47,11 +48,13 @@ export function createResourcePanel() {
 }
 
 /**
- * Create a resource type row
+ * Create a single resource type row DOM element.
+ *
+ * @param {{ id: string, name: string, icon: string, color: string, total: number }} type - Resource type configuration
+ * @returns {HTMLElement} Resource row element
  */
 function createResourceItem(type) {
   const deployed = getDeployedCount(type.id);
-  const available = type.total - deployed;
 
   return h('div', {
     class: 'resource-item',
@@ -90,7 +93,10 @@ function createResourceItem(type) {
 }
 
 /**
- * Get deployed count for a resource type
+ * Get currently deployed staff count for a resource type identifier.
+ *
+ * @param {string} typeId - Resource type ID
+ * @returns {number} Count of deployed personnel
  */
 function getDeployedCount(typeId) {
   const resource = state.resources?.[typeId];
@@ -99,7 +105,9 @@ function getDeployedCount(typeId) {
 }
 
 /**
- * Get total deployed across all types
+ * Get total count of deployed personnel across all resource categories.
+ *
+ * @returns {number} Total deployed count
  */
 function getTotalDeployed() {
   let total = 0;
@@ -110,7 +118,10 @@ function getTotalDeployed() {
 }
 
 /**
- * Adjust resource count
+ * Manually increment or decrement deployed personnel for a resource type.
+ *
+ * @param {string} typeId - Resource category ID
+ * @param {number} delta - Positive or negative adjustment (+1 or -1)
  */
 function adjustResource(typeId, delta) {
   const resource = state.resources?.[typeId];
@@ -139,7 +150,7 @@ function adjustResource(typeId, delta) {
 }
 
 /**
- * AI Auto-balance based on crowd density
+ * AI auto-balance handler — redistributes staff across high-density stadium zones.
  */
 function handleAutoBalance() {
   const crowdData = state.crowdData || {};
@@ -197,10 +208,9 @@ function handleAutoBalance() {
 }
 
 /**
- * Update deployment suggestions based on density changes
+ * Update auto-balance button visual indicator when high crowd density is detected.
  */
 function updateDeploymentSuggestions() {
-  // Visual hint if density is very high somewhere
   const crowdData = state.crowdData || {};
   const criticalZones = Object.values(crowdData).filter(z => z.density > 85);
 
@@ -210,4 +220,3 @@ function updateDeploymentSuggestions() {
     setTimeout(() => btn.classList.remove('animate-pulse'), 3000);
   }
 }
-
