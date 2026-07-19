@@ -71,6 +71,10 @@ const FOLLOW_UP_PATTERNS = Object.freeze([
  *
  * @param {string} text - Message text to estimate
  * @returns {number} Estimated token count
+ *
+ * @example
+ * estimateTokens('Hello World')     // => 3
+ * estimateTokens('こんにちは')        // => 3 (CJK: 2 chars/token)
  */
 export function estimateTokens(text) {
   if (!text) return 0;
@@ -205,6 +209,10 @@ export function compressContext(chatHistory) {
  *
  * @param {Array<string>} recentIntents - Last 5 user intent strings
  * @returns {string|null} Contextual hint or null if no pattern matches
+ *
+ * @example
+ * detectFollowUp(['greeting', 'wayfinding', 'food']);
+ * // => 'wayfinding→food' (suggests food along the route)
  */
 export function detectFollowUp(recentIntents) {
   if (!recentIntents || recentIntents.length < 2) return null;
