@@ -269,8 +269,11 @@ export function getCacheStats() {
   let storageSize = 0;
   if (typeof localStorage !== 'undefined') {
     try {
-      storageSize = Object.keys(localStorage)
-        .filter(k => k.startsWith(STORAGE_PREFIX))
+      const keys = typeof localStorage.key === 'function'
+        ? Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i)).filter(Boolean)
+        : Object.keys(localStorage);
+      storageSize = keys
+        .filter(k => typeof k === 'string' && k.startsWith(STORAGE_PREFIX))
         .reduce((sum, k) => sum + (localStorage.getItem(k) || '').length, 0);
     } catch (_) {
       // Fail-silent if localStorage is blocked
