@@ -258,7 +258,7 @@ function showZoneDetails(zoneId, zoneData, crowdInfo) {
     h('div', { class: 'grid grid-cols-3 gap-2 text-center' },
       h('div', {},
         h('p', { class: 'text-xs text-slate-500' }, 'Density'),
-        h('p', { class: `text-lg font-bold`, style: { color: getDensityTextColor(density) } }, `${density}%`),
+        h('p', { class: 'text-lg font-bold', style: { color: getDensityTextColor(density) } }, `${density}%`),
       ),
       h('div', {},
         h('p', { class: 'text-xs text-slate-500' }, 'Trend'),

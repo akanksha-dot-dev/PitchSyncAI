@@ -210,30 +210,30 @@ Object.freeze(QUICK_REPLIES);
 export const RESPONSE_TEMPLATES = {
   welcome: {
     en: "Welcome to MetLife Stadium! 🏟️ I'm your AI matchday assistant. I can help you with:\n\n🗺️ **Navigation** — Find your seat, food, restrooms\n🚇 **Transit** — Real-time departure schedules\n♿ **Accessibility** — Wheelchair routes, low-sensory paths\n🌐 **Language** — I speak 10 languages!\n\nHow can I help you today?",
-    es: "¡Bienvenido al MetLife Stadium! 🏟️ Soy tu asistente de IA. Puedo ayudarte con:\n\n🗺️ **Navegación** — Encuentra tu asiento, comida, baños\n🚇 **Transporte** — Horarios en tiempo real\n♿ **Accesibilidad** — Rutas para sillas de ruedas\n🌐 **Idiomas** — ¡Hablo 10 idiomas!\n\n¿Cómo puedo ayudarte?",
-    fr: "Bienvenue au MetLife Stadium! 🏟️ Je suis votre assistant IA. Je peux vous aider avec:\n\n🗺️ **Navigation** — Trouvez votre siège, nourriture\n🚇 **Transport** — Horaires en temps réel\n♿ **Accessibilité** — Itinéraires accessibles\n🌐 **Langues** — Je parle 10 langues!\n\nComment puis-je vous aider?",
+    es: '¡Bienvenido al MetLife Stadium! 🏟️ Soy tu asistente de IA. Puedo ayudarte con:\n\n🗺️ **Navegación** — Encuentra tu asiento, comida, baños\n🚇 **Transporte** — Horarios en tiempo real\n♿ **Accesibilidad** — Rutas para sillas de ruedas\n🌐 **Idiomas** — ¡Hablo 10 idiomas!\n\n¿Cómo puedo ayudarte?',
+    fr: 'Bienvenue au MetLife Stadium! 🏟️ Je suis votre assistant IA. Je peux vous aider avec:\n\n🗺️ **Navigation** — Trouvez votre siège, nourriture\n🚇 **Transport** — Horaires en temps réel\n♿ **Accessibilité** — Itinéraires accessibles\n🌐 **Langues** — Je parle 10 langues!\n\nComment puis-je vous aider?',
   },
 
   wayfinding: {
     en: "I've found the best route for you! 🗺️\n\n",
-    es: "¡He encontrado la mejor ruta para ti! 🗺️\n\n",
+    es: '¡He encontrado la mejor ruta para ti! 🗺️\n\n',
     fr: "J'ai trouvé le meilleur itinéraire! 🗺️\n\n",
   },
 
   transit: {
-    en: "Here are the upcoming departures from the stadium: 🚇\n\n",
-    es: "Aquí están las próximas salidas del estadio: 🚇\n\n",
-    fr: "Voici les prochains départs du stade: 🚇\n\n",
+    en: 'Here are the upcoming departures from the stadium: 🚇\n\n',
+    es: 'Aquí están las próximas salidas del estadio: 🚇\n\n',
+    fr: 'Voici les prochains départs du stade: 🚇\n\n',
   },
 
   food: {
-    en: "Here are the nearest food options: 🍔\n\n• **East Food Court** — Burgers, Pizza, Tacos (5 min walk)\n• **West Food Court** — Asian, Mediterranean, Salads (7 min walk)\n• **North Concourse** — Hot Dogs, Pretzels, Drinks (3 min walk)\n\nWould you like directions to any of these?",
-    es: "Opciones de comida cercanas: 🍔\n\n• **Food Court Este** — Hamburguesas, Pizza, Tacos (5 min)\n• **Food Court Oeste** — Asiática, Mediterránea, Ensaladas (7 min)\n• **Pasillo Norte** — Hot Dogs, Pretzels, Bebidas (3 min)\n\n¿Quieres direcciones?",
+    en: 'Here are the nearest food options: 🍔\n\n• **East Food Court** — Burgers, Pizza, Tacos (5 min walk)\n• **West Food Court** — Asian, Mediterranean, Salads (7 min walk)\n• **North Concourse** — Hot Dogs, Pretzels, Drinks (3 min walk)\n\nWould you like directions to any of these?',
+    es: 'Opciones de comida cercanas: 🍔\n\n• **Food Court Este** — Hamburguesas, Pizza, Tacos (5 min)\n• **Food Court Oeste** — Asiática, Mediterránea, Ensaladas (7 min)\n• **Pasillo Norte** — Hot Dogs, Pretzels, Bebidas (3 min)\n\n¿Quieres direcciones?',
   },
 
   medical: {
-    en: "🏥 **Nearest Medical Station**: Medical Station 1\n📍 North-West section, Level 1\n⏱️ Estimated walk: 2 minutes\n📞 Emergency: Dial #HELP on your phone\n\nShall I guide you there?",
-    es: "🏥 **Estación Médica más cercana**: Estación 1\n📍 Sección Noroeste, Nivel 1\n⏱️ Caminata estimada: 2 minutos\n📞 Emergencia: Marque #HELP\n\n¿Quieres que te guíe?",
+    en: '🏥 **Nearest Medical Station**: Medical Station 1\n📍 North-West section, Level 1\n⏱️ Estimated walk: 2 minutes\n📞 Emergency: Dial #HELP on your phone\n\nShall I guide you there?',
+    es: '🏥 **Estación Médica más cercana**: Estación 1\n📍 Sección Noroeste, Nivel 1\n⏱️ Caminata estimada: 2 minutos\n📞 Emergencia: Marque #HELP\n\n¿Quieres que te guíe?',
   },
 
   accessibility: {
@@ -241,12 +241,12 @@ export const RESPONSE_TEMPLATES = {
   },
 
   crowdWarning: {
-    en: "⚠️ **Crowd Alert**: High density detected at {zone}. \nI recommend using {altRoute} instead.\n\nEstimated wait: **{waitTime} minutes** at current route vs. **{altWaitTime} minutes** on alternate.\n\nShall I reroute?",
+    en: '⚠️ **Crowd Alert**: High density detected at {zone}. \nI recommend using {altRoute} instead.\n\nEstimated wait: **{waitTime} minutes** at current route vs. **{altWaitTime} minutes** on alternate.\n\nShall I reroute?',
   },
 
   fallback: {
     en: "I'm not sure I understood that fully. Could you try rephrasing? I can help with:\n\n• 🗺️ Navigation & wayfinding\n• 🚇 Transit schedules\n• 🍔 Food & facilities\n• ♿ Accessibility\n• 🏥 Medical assistance\n• 🎟️ Ticket information",
-    es: "No estoy seguro de haber entendido. ¿Podrías reformular? Puedo ayudar con:\n\n• 🗺️ Navegación\n• 🚇 Transporte\n• 🍔 Comida\n• ♿ Accesibilidad\n• 🏥 Asistencia médica\n• 🎟️ Información de boletos",
+    es: 'No estoy seguro de haber entendido. ¿Podrías reformular? Puedo ayudar con:\n\n• 🗺️ Navegación\n• 🚇 Transporte\n• 🍔 Comida\n• ♿ Accesibilidad\n• 🏥 Asistencia médica\n• 🎟️ Información de boletos',
   },
 };
 

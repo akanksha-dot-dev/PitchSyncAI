@@ -138,8 +138,8 @@ function createOnlineIndicator() {
 }
 
 function updateModeToggle(mode) {
-  const fanBtn = $(`#mode-btn-fan`);
-  const opsBtn = $(`#mode-btn-ops`);
+  const fanBtn = $('#mode-btn-fan');
+  const opsBtn = $('#mode-btn-ops');
   if (!fanBtn || !opsBtn) return;
 
   if (mode === 'fan') {

@@ -330,7 +330,7 @@ export async function generateResponse(intent, entities, language, context, crow
 
     case 'ticket':
       return {
-        text: `🎟️ **Your Ticket Details**:\n\n`,
+        text: '🎟️ **Your Ticket Details**:\n\n',
         richData: { type: 'ticket', ticket: MOCK_TICKET },
         type: 'ticket',
       };

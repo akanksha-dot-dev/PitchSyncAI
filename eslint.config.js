@@ -39,8 +39,8 @@ export default [
       },
     },
     rules: {
-      'no-unused-vars': ['warn', { 'argsIgnorePattern': '^_' }],
-      'no-console': ['warn', { allow: ['info', 'warn', 'error'] }],
+      'no-unused-vars': ['warn', { 'argsIgnorePattern': '^_', 'varsIgnorePattern': '^_' }],
+      'no-console': ['warn', { allow: ['info', 'warn', 'error', 'debug'] }],
       'no-undef': 'error',
       'semi': ['error', 'always'],
       'quotes': ['warn', 'single', { 'avoidEscape': true }],
