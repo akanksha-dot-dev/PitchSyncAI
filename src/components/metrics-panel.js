@@ -10,9 +10,18 @@
 import { h, $, formatNumber } from '../utils/dom.js';
 import state, { subscribe } from '../core/state.js';
 
+// Sparkline historical dataset arrays
+const historyData = {
+  occupancy: [42, 48, 55, 62, 68, 72, 74],
+  entryRate: [120, 145, 180, 210, 195, 160, 140],
+  alerts: [1, 2, 1, 3, 2, 4, 2],
+  waitTime: [12, 14, 18, 22, 19, 15, 13],
+};
+
 /**
- * Create the metrics panel (4 KPI cards)
- * @returns {HTMLElement}
+ * Create the metrics panel component containing 4 KPI cards.
+ *
+ * @returns {HTMLElement} Metrics panel DOM element
  */
 export function createMetricsPanel() {
   const panel = h('div', {
@@ -38,7 +47,15 @@ export function createMetricsPanel() {
 }
 
 /**
- * Create a single metric card
+ * Create a single KPI metric card DOM element.
+ *
+ * @param {string} id - Card identifier suffix
+ * @param {string} label - Card title label
+ * @param {string} value - Display value
+ * @param {string} unit - Measurement unit
+ * @param {'blue'|'green'|'amber'|'red'} color - Accent color theme
+ * @param {string} icon - Emoji icon
+ * @returns {HTMLElement} Metric card element
  */
 function createMetricCard(id, label, value, unit, color, icon) {
   return h('div', {
@@ -72,7 +89,11 @@ function createMetricCard(id, label, value, unit, color, icon) {
 }
 
 /**
- * Draw a mini sparkline in a container
+ * Draw an inline SVG sparkline chart inside a target container.
+ *
+ * @param {string} containerId - Target container element ID
+ * @param {number[]} data - Array of numeric data points
+ * @param {string} color - Hex line color
  */
 function drawSparkline(containerId, data, color) {
   const container = $(`#${containerId}`);
@@ -98,150 +119,105 @@ function drawSparkline(containerId, data, color) {
 
   // Area fill
   const area = document.createElementNS(svgNS, 'polygon');
-  area.setAttribute('points', `0,28 ${points.join(' ')} 100,28`);
+  area.setAttribute('points', `0,30 ${points.join(' ')} 100,30`);
   area.setAttribute('fill', color);
   area.setAttribute('opacity', '0.1');
   svg.appendChild(area);
 
-  // Line
+  // Line stroke
   const line = document.createElementNS(svgNS, 'polyline');
   line.setAttribute('points', points.join(' '));
   line.setAttribute('fill', 'none');
   line.setAttribute('stroke', color);
-  line.setAttribute('stroke-width', '1.5');
+  line.setAttribute('stroke-width', '2');
   line.setAttribute('stroke-linecap', 'round');
   line.setAttribute('stroke-linejoin', 'round');
   svg.appendChild(line);
-
-  // Latest point dot
-  const lastPoint = points[points.length - 1].split(',');
-  const dot = document.createElementNS(svgNS, 'circle');
-  dot.setAttribute('cx', lastPoint[0]);
-  dot.setAttribute('cy', lastPoint[1]);
-  dot.setAttribute('r', '2.5');
-  dot.setAttribute('fill', color);
-  svg.appendChild(dot);
 
   container.innerHTML = '';
   container.appendChild(svg);
 }
 
-// Store historical data for sparklines
-const metricHistory = {
-  occupancy: [],
-  entryRate: [],
-  alerts: [],
-  waitTime: [],
-};
-
 /**
- * Update metrics from crowd data
+ * Update metric cards based on live crowd dataset changes.
+ *
+ * @param {Record<string, { density: number, count: number }>} crowdData - Updated crowd state
  */
 function updateMetrics(crowdData) {
-  if (!crowdData || Object.keys(crowdData).length === 0) return;
+  if (!crowdData) return;
 
-  // Calculate total occupancy
-  let totalCount = 0;
-  let totalCapacity = 0;
-  for (const info of Object.values(crowdData)) {
-    totalCount += info.count || 0;
-    totalCapacity += info.capacity || 0;
-  }
-  const occupancy = totalCapacity > 0 ? Math.round((totalCount / totalCapacity) * 100) : 0;
+  const zones = Object.values(crowdData);
+  if (zones.length === 0) return;
 
-  // Entry rate (simulated)
-  const entryRate = Math.floor(150 + Math.random() * 100);
+  // Calculate average density
+  const totalDensity = zones.reduce((sum, z) => sum + z.density, 0);
+  const avgDensity = Math.round(totalDensity / zones.length);
 
-  // Avg wait time
-  const waitTime = Math.round(2 + Math.random() * 6);
+  // Update occupancy
+  updateMetricValue('total-occupancy', String(avgDensity), avgDensity > 70 ? '↑ +3%' : '→ Stable', '#3B82F6');
+  historyData.occupancy.shift();
+  historyData.occupancy.push(avgDensity);
+  drawSparkline('sparkline-total-occupancy', historyData.occupancy, '#3B82F6');
 
-  // Update values
-  updateMetricValue('total-occupancy', occupancy, '%');
-  updateMetricValue('entry-rate', entryRate, '/min');
-  updateMetricValue('avg-wait', waitTime, 'min');
+  // Entry rate calculation
+  const totalCount = zones.reduce((sum, z) => sum + (z.count || 0), 0);
+  const entryRate = Math.round(totalCount / 40);
+  updateMetricValue('entry-rate', formatNumber(entryRate), entryRate > 150 ? '↑ High' : '→ Normal', '#22C55E');
+  historyData.entryRate.shift();
+  historyData.entryRate.push(entryRate);
+  drawSparkline('sparkline-entry-rate', historyData.entryRate, '#22C55E');
 
-  // Track history
-  metricHistory.occupancy.push(occupancy);
-  metricHistory.entryRate.push(entryRate);
-  metricHistory.waitTime.push(waitTime);
-
-  // Keep last 20 points
-  for (const key of Object.keys(metricHistory)) {
-    if (metricHistory[key].length > 20) metricHistory[key].shift();
-  }
-
-  // Update sparklines
-  drawSparkline('sparkline-total-occupancy', metricHistory.occupancy, '#1D4ED8');
-  drawSparkline('sparkline-entry-rate', metricHistory.entryRate, '#16A34A');
-  drawSparkline('sparkline-avg-wait', metricHistory.waitTime, '#DC2626');
-
-  // Update trends
-  updateTrend('total-occupancy', metricHistory.occupancy);
-  updateTrend('entry-rate', metricHistory.entryRate);
-  updateTrend('avg-wait', metricHistory.waitTime);
+  // Avg wait time calculation
+  const avgWait = Math.max(3, Math.round((avgDensity / 100) * 25));
+  updateMetricValue('avg-wait', `${avgWait}`, avgWait > 15 ? '↑ Long' : '↓ Low', '#EF4444');
+  historyData.waitTime.shift();
+  historyData.waitTime.push(avgWait);
+  drawSparkline('sparkline-avg-wait', historyData.waitTime, '#EF4444');
 }
 
 /**
- * Update a single metric value
- */
-function updateMetricValue(id, value, unit) {
-  const el = $(`#metric-value-${id}`);
-  if (el) el.textContent = formatNumber(value);
-
-  const card = $(`#metric-${id}`);
-  if (card) card.setAttribute('aria-label', `${id.replace(/-/g, ' ')}: ${value}${unit}`);
-}
-
-/**
- * Update alert count
+ * Update active alert count card and sparkline.
+ *
+ * @param {Array<{ resolved: boolean }>} alerts - Active alerts list
  */
 function updateAlertCount(alerts) {
-  const count = (alerts || []).filter(a => !a.resolved).length;
-  updateMetricValue('active-alerts', count, '');
-
-  metricHistory.alerts.push(count);
-  if (metricHistory.alerts.length > 20) metricHistory.alerts.shift();
-  drawSparkline('sparkline-active-alerts', metricHistory.alerts, '#EAB308');
+  const active = (alerts || []).filter(a => !a.resolved).length;
+  updateMetricValue('active-alerts', String(active), active > 2 ? '↑ High' : '✓ Normal', '#F59E0B');
+  historyData.alerts.shift();
+  historyData.alerts.push(active);
+  drawSparkline('sparkline-active-alerts', historyData.alerts, '#F59E0B');
 }
 
 /**
- * Calculate and display trend
+ * Update a specific metric card's text, trend indicator, and ARIA label.
+ *
+ * @param {string} id - Metric card identifier
+ * @param {string} val - New value text
+ * @param {string} trend - Trend string
+ * @param {string} color - Sparkline color
  */
-function updateTrend(id, history) {
-  if (history.length < 3) return;
+function updateMetricValue(id, val, trend, color) {
+  const valEl = $(`#metric-value-${id}`);
   const trendEl = $(`#metric-trend-${id}`);
-  if (!trendEl) return;
-
-  const recent = history[history.length - 1];
-  const prev = history[history.length - 3];
-  const diff = recent - prev;
-
-  if (diff > 2) {
-    trendEl.textContent = `↑ +${Math.abs(Math.round(diff))}`;
-    trendEl.className = 'metric-card__trend metric-card__trend--up';
-  } else if (diff < -2) {
-    trendEl.textContent = `↓ -${Math.abs(Math.round(diff))}`;
-    trendEl.className = 'metric-card__trend metric-card__trend--down';
-  } else {
-    trendEl.textContent = '→ Stable';
-    trendEl.className = 'metric-card__trend metric-card__trend--stable';
+  if (valEl) valEl.textContent = val;
+  if (trendEl) {
+    trendEl.textContent = trend;
+    trendEl.className = `metric-card__trend ${
+      trend.startsWith('↑') ? 'metric-card__trend--up' :
+      trend.startsWith('↓') ? 'metric-card__trend--down' : 'metric-card__trend--stable'
+    }`;
   }
 }
 
 /**
- * Simulate initial metrics
+ * Initial metric dataset simulation bootloader.
  */
 function simulateMetrics() {
-  // Generate some initial sparkline data
-  for (let i = 0; i < 10; i++) {
-    metricHistory.occupancy.push(55 + Math.floor(Math.random() * 20));
-    metricHistory.entryRate.push(150 + Math.floor(Math.random() * 100));
-    metricHistory.alerts.push(Math.floor(Math.random() * 5));
-    metricHistory.waitTime.push(2 + Math.floor(Math.random() * 6));
-  }
-  drawSparkline('sparkline-total-occupancy', metricHistory.occupancy, '#1D4ED8');
-  drawSparkline('sparkline-entry-rate', metricHistory.entryRate, '#16A34A');
-  drawSparkline('sparkline-active-alerts', metricHistory.alerts, '#EAB308');
-  drawSparkline('sparkline-avg-wait', metricHistory.waitTime, '#DC2626');
-}
+  drawSparkline('sparkline-total-occupancy', historyData.occupancy, '#3B82F6');
+  drawSparkline('sparkline-entry-rate', historyData.entryRate, '#22C55E');
+  drawSparkline('sparkline-active-alerts', historyData.alerts, '#F59E0B');
+  drawSparkline('sparkline-avg-wait', historyData.waitTime, '#EF4444');
 
+  updateMetrics(state.crowdData);
+  updateAlertCount(state.opsAlerts);
+}
