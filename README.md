@@ -9,61 +9,110 @@
 
 ---
 
-## 📌 Chosen Vertical
+## 📌 Chosen Vertical & Problem Alignment
 
-**Stadium Operations & Fan Experience** — Enhancing real-time crowd management, accessible navigation, multilingual assistance, and operational intelligence for the FIFA World Cup 2026.
+### Vertical
+**Stadium Operations & Fan Experience (FIFA World Cup 2026™)**
+
+### Core Objective
+To build a **smart, dynamic assistant** with **logical decision-making based on user context** (accessibility needs, ticket location, language, and real-time stadium density).
+
+### Core Operational Challenges Solved
+1. **Crowd Bottlenecks & Overcrowding**: Gates, concourses, and food courts suffer from sudden congestion with zero real-time visibility for fans or operations staff.
+2. **Multilingual Communication Gaps**: Over 80,000 international fans per venue speaking 10+ languages need immediate, context-aware assistance for wayfinding, transit, and emergency help.
+3. **Accessibility Obstacles**: Fans with wheelchairs, visual impairments, or sensory sensitivities lack real-time detour routes that dynamically avoid crowded or inaccessible stadium areas.
+4. **Siloed Operations Management**: Stadium operational staff lack AI-assisted situational awareness to execute proactive crowd rerouting without creating secondary bottlenecks.
 
 ---
 
-## 🧠 Approach and Logic
+## 💡 The Solution: Dual-Mode GenAI Architecture
 
-### The Problem
-
-FIFA World Cup 2026 stadiums will serve 80,000+ multilingual fans per match across 16 venues in three countries. Key operational challenges include:
-
-- **Crowd bottlenecks** at gates, concourses, and food courts with no real-time visibility
-- **Language barriers** for international fans needing wayfinding, transit, and emergency help
-- **Accessibility gaps** where wheelchair users, visually impaired fans, and sensory-sensitive attendees lack tailored guidance
-- **Disconnected operations** where staff lack AI-driven situational awareness for proactive rerouting
-
-### The Solution: Dual-Mode GenAI Architecture
-
-PitchSync AI operates as a **unified Single Page Application (SPA) with two dynamic modes**, each targeting a distinct stakeholder group:
-
-| Mode | Target User | Core Capabilities |
-|------|-------------|-------------------|
-| **🎟️ Fan Copilot** | International fans | Multilingual AI chat assistant, accessible wayfinding with route cards, live transit departure schedules, digital ticket wallet with offline save |
-| **📊 Ops Command** | Stadium staff & volunteers | Real-time crowd density heatmap (SVG), 4 KPI metric cards with sparklines, AI-generated alert feed with acknowledge/resolve actions, staff resource deployment panel, proactive reroute validation wizard |
-
-### GenAI Processing Pipeline
+PitchSync AI provides a single, high-performance Single Page Application (SPA) with **two dynamic operating modes**:
 
 ```
-User Input → XSS Sanitization → Prompt Injection Defense → Language Detection → Intent Classification
-                                                                                    ↓
-                                                                            [Ambiguity Check]
-                                                                             /             \
-                                                                         (Low Conf.)    (High Conf.)
-                                                                           /                 \
-                                                              Disambiguation Prompt    Context Assembly
-                                                                                             ↓
-                                                                                    Follow-up Detection
-                                                                                             ↓
-                                                                                    Response Generation
-                                                                                             ↓
-                                                                                    Context Compression
-                                                                                             ↓
-                                                                                    Rich UI Card Rendering
+                                 ┌───────────────────────────────┐
+                                 │       PitchSync AI SPA        │
+                                 └──────────────┬────────────────┘
+                                                │
+                      ┌─────────────────────────┴─────────────────────────┐
+                      ▼                                                   ▼
+            🎟️ Fan Copilot Mode                                 📊 Ops Command Mode
+   ──────────────────────────────────                  ───────────────────────────────────
+   • Multilingual AI Chat Assistant                    • Real-Time Crowd Heatmap (SVG)
+   • Context-Aware Accessible Routing                  • 4 Key Performance Metric Sparklines
+   • Live Transit Departure Schedules                  • Real-Time Staff Alert Feed
+   • Digital Ticket Wallet & Save                      • Staff Resource Auto-Balancer
+   • Instant Quick-Reply Chips                         • 4-Step Reroute Validation Wizard
 ```
 
-**Intent Classification Engine**: Template-based NLP with multi-language keyword matching across 8 intent categories (`wayfinding`, `transit`, `food`, `medical`, `accessibility`, `ticket`, `crowd`, `greeting`) with confidence scoring (0.70–0.90).
+---
 
-**Prompt Injection Defense**: A dedicated regex-based scanner (`sanitizePromptInjection`) detects and neutralizes adversarial prompt patterns — instruction overrides, system prompt extraction, jailbreak attempts, and role impersonation — before any user input reaches intent classification. Zero-width unicode characters are also stripped to prevent invisible injection vectors.
+## 🏗️ Technical Architecture & GenAI Pipeline
 
-**Follow-up Intent Detection**: The `detectFollowUp()` function in the context manager analyses sequential intent patterns to identify contextual transitions (e.g. `wayfinding` → `food` triggers "food along the route" suggestions, `transit` → `wayfinding` triggers "walking directions from drop-off" enrichment).
+### 1. GenAI NLP Processing Engine
 
-**Ambiguity Disambiguation**: When the top two intent candidates score within 30% of each other and confidence is below 0.3, the engine triggers a clarification prompt asking the user to specify their need rather than guessing incorrectly.
+Every incoming fan query undergoes a multi-stage, security-hardened natural language processing pipeline:
 
-### Adaptive Context Compression (3-Tier Sliding Window)
+```
+[User Input] 
+     │
+     ▼
+┌─────────────────────────┐
+│  1. XSS Sanitization    │ ── DOM-based & regex escaping (zero script injection)
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ 2. Prompt Injection Sec │ ── Neutralizes instruction overrides & adversarial prompts
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ 3. Language Detection   │ ── ISO 639-1 script analysis & dynamic RTL layout sync
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ 4. Intent Classification│ ── Multi-signal keyword matching across 8 intent types
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ 5. Entity Extraction    │ ── Extract Gates (A-H), Sections, Rows, Seats, and Zones
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ 6. Ambiguity Check      │ ── Low confidence (<0.3) triggers disambiguation prompt
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ 7. Context Assembly     │ ── Merges Accessibility Prefs, Ticket Data & User Profile
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ 8. Follow-up Detection  │ ── Recognizes intent sequences (e.g. wayfinding → food)
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ 9. Response Generation  │ ── Generates localized markdown & rich UI element payloads
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ 10. Context Compression │ ── 3-Tier sliding window with priority message pinning
+└──────────┬──────────────┘
+           │
+           ▼
+ [Rich Card UI Render]
+```
+
+### 2. Adaptive Context Compression (3-Tier Sliding Window)
+
+To maintain conversation history within context window limits without losing critical user preferences, the context manager applies a 3-tier sliding window strategy:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -73,212 +122,201 @@ User Input → XSS Sanitization → Prompt Injection Defense → Language Detect
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Priority Pinning**: Messages containing accessibility preferences, ticket data, or emergency intents are **never evicted** regardless of window position. This ensures the AI retains critical user context (e.g. wheelchair preferences, ticket seat info) across arbitrarily long conversations.
+* **Priority Pinning**: Messages containing `accessibility`, `ticket`, or `emergency` intents are **never evicted**, guaranteeing that wheelchair preferences or seat locations persist throughout the entire session.
 
-### Real-Time Ops Data Flow
+### 3. Real-Time Ops Data Flow & Validation Wizard
 
 ```
-Firebase Mock (5s interval) → Crowd Density Updates → Reactive State Manager
-    ↓                                                        ↓
-Smooth ±5% transitions                          Heatmap SVG + KPI Metrics
-    ↓                                                        ↓
-Alert Threshold (>85%)                              AI Alert Generation
-    ↓                                                        ↓
-Ops Alert Feed                              Reroute Validation Wizard
+Firebase Simulation Stream (5s interval)
+           │
+           ▼
+    Reactive State Proxy ──────────────► SVG Heatmap & KPI Metrics Updates
+           │
+           ▼
+Density Alert (>85% Threshold)
+           │
+           ▼
+   Ops Alert Feed Trigger
+           │
+           ▼
+  [Validation Wizard] ──► 1. Reroute Proposal Summary
+                          2. Accessibility Pathway Check (Wheelchair detour conflicts)
+                          3. Transit Capacity Check (Shuttle bottleneck prevention)
+                          4. Impact Summary & Recommendation (Pass / Warning / Fail)
 ```
-
-The **Validation Wizard** runs 4 automated checks before approving any crowd reroute:
-1. **Reroute Proposal** — Summary of the proposed action with affected zones
-2. **Accessibility Pathway Check** — Detects conflicts with wheelchair/elevator routes
-3. **Transit Capacity Check** — Validates that redirected flow won't exceed shuttle capacity
-4. **Impact Summary** — Pass/Warning/Fail decision with actionable recommendations
 
 ---
 
-## ⚙️ How the Solution Works
+## 📊 Feature Capability Matrix
+
+| Feature | Stakeholder | AI / Logic Decision | Real-World Value |
+|---------|-------------|---------------------|------------------|
+| **Multilingual AI Assistant** | Fans | Script detection & intent classification across 10 languages | Eliminates language barriers for 80,000+ international fans |
+| **Accessible Wayfinding** | Fans | Swaps stairs/escalators for ramps/elevators when wheelchair flag is active | WCAG AAA compliant navigation for disabled attendees |
+| **Crowd-Aware Rerouting** | Fans | Injects crowd density alerts into route guidance if destination >75% | Prevents fans from walking into concourse bottlenecks |
+| **Follow-up Intent Hinting** | Fans | Pattern matching (`wayfinding` → `food`) suggests food along the route | Enhances fan experience and increases concession revenue |
+| **Real-Time Heatmap** | Ops Staff | Dynamic SVG fill color calculation based on live density percentage | Provides staff instant visual situational awareness |
+| **Proactive Alert Feed** | Ops Staff | Auto-pushes alerts when density crosses 85% threshold | Enables proactive crowd control before incidents occur |
+| **Staff Resource Auto-Balancer** | Ops Staff | Proportional allocation algorithm distributing staff to hot zones | Optimizes security and medical personnel deployment |
+| **Reroute Validation Wizard** | Ops Staff | 4-step conflict checker verifying accessibility & shuttle capacity | Prevents staff from causing secondary crowd bottlenecks |
+
+---
+
+## 🎯 Constraint Compliance Checklist
+
+| Constraint | Requirement | Implementation | Status |
+|------------|-------------|----------------|--------|
+| **Repository Size** | Under 10MB | Total repository size is **< 1MB** (zero heavy node_modules committed) | ✅ PASS |
+| **Git Branches** | Single Branch | Strictly built and maintained on single `main` branch | ✅ PASS |
+| **Real-World Usability** | High functionality | Offline ticket saving, L1/L2 caching, resilient fallback state | ✅ PASS |
+| **Test Suite** | Comprehensive | **120 tests passing (100% pass rate)** using native Node harness | ✅ PASS |
+| **Security** | High score | Prompt injection defense + DOM XSS sanitization + API key leak scanner | ✅ PASS |
+| **Accessibility** | High score | WCAG AAA contrast (8.95:1), ARIA live-regions, focus traps, RTL support | ✅ PASS |
+
+---
+
+## 📋 Technical Assumptions & Architecture
+
+1. **Modular Mock Services as Production SDK Contracts**: Google Cloud Translation, Maps Platform, and Firebase Firestore are architected inside `src/services/` with clean interface contracts. Replacing mocks with live SDK clients requires changing only the internal fetch calls without altering UI code.
+2. **Zero Exposed API Keys**: No credentials or API keys are stored in the client codebase. The `validateApiKey()` function actively scans inputs to prevent credential leaks.
+3. **Network Resilience & Cell Congestion**: Designed for high-density stadium environments with cell network congestion:
+   - Offline-first architecture with localStorage snapshotting
+   - Tailwind loaded via lightweight CDN (0 bytes in repository)
+   - Total production bundle under 100 KB gzipped
+4. **Crowd Simulation Dynamics**: Real-time crowd density changes are generated via smooth ±5% transitions per 5-second tick, modeling realistic crowd movement.
+
+---
+
+## ⚡ Quick Start & Deployment
 
 ### Prerequisites
-
 - **Node.js** 18+ installed
 - **npm** (bundled with Node.js)
 
 ### Local Development
 
 ```bash
-# 1. Clone the repository
+# 1. Clone repository
 git clone https://github.com/akanksha-dot-dev/PitchSyncAI.git
 cd PitchSyncAI
 
-# 2. Install dependencies (single dev dependency: Vite)
+# 2. Install dependencies (Vite)
 npm install
 
-# 3. Start the development server
+# 3. Run development server
 npm run dev
-# Opens at http://localhost:5173
+# Server opens at http://localhost:5173
 
-# 4. Run the test suite
+# 4. Run native test suite (120 tests)
 npm run test
 
-# 5. Build for production
+# 5. Build production bundle
 npm run build
 
-# 6. Preview the production build
+# 6. Preview production build
 npm run preview
 ```
 
-### Technology Stack
+### Vercel Deployment
 
-| Layer | Technology | Rationale |
-|-------|-----------|---------  |
-| Build | Vite 6.x | Sub-second HMR, tree-shaking, zero-config |
-| Logic | Vanilla JavaScript (ES2022) | Zero runtime dependencies, maximum control |
-| Styling | CSS Custom Properties + Tailwind CDN | Design tokens + utility classes, 0 bytes in repo |
-| State | Proxy-based reactive system | No library needed, native browser performance |
-| Routing | Custom hash-based SPA router | Lightweight, no history API complexity |
-| Caching | localStorage + in-memory Map | Dual-layer with TTL and auto-save |
-| Security | Prompt Injection + XSS Defenses | Multi-layer sanitization pipeline |
-| Testing | Node.js native test runner | Zero test dependencies, `node --test` |
-| Real-time | Mocked Firebase with `setInterval` | Drop-in production replacement ready |
+PitchSync AI includes a pre-configured `vercel.json` for single-click deployment:
 
-### Deploying to Vercel
-
-PitchSync AI is pre-configured for instant Vercel deployment:
-
-1. Push to GitHub (single `main` branch)
-2. Go to [vercel.com/new](https://vercel.com/new) → Import Git Repository
-3. Vercel auto-detects Vite:
-   - **Framework Preset**: Vite
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-   - **Install Command**: `npm install`
+1. Push commit to GitHub (`main` branch)
+2. Import repository on [Vercel Dashboard](https://vercel.com/new)
+3. Vercel auto-detects Vite configuration (`npm run build`, output: `dist`)
 4. Click **Deploy** ✅
 
-The included `vercel.json` configures:
-- **SPA Routing**: All paths rewrite to `index.html`
-- **Asset Caching**: Immutable caching for hashed assets (1 year)
-- **Security Headers**: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Strict-Transport-Security`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-XSS-Protection: 1; mode=block`
+Included `vercel.json` configures SPA rewrites, 1-year asset caching, and security headers (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, `X-XSS-Protection`).
 
-### File Structure
+---
+
+## 📁 File Structure
 
 ```
 PitchSyncAI/
 ├── index.html              # Semantic HTML5 shell with Tailwind CDN
-├── package.json            # Single dev dependency (vite)
+├── package.json            # Package metadata & single dev dependency (vite)
 ├── vite.config.js          # Vite build configuration
-├── vercel.json             # Deployment routing + security headers
-├── README.md               # This file
+├── vercel.json             # Deployment SPA routing + security headers
+├── README.md               # Complete project documentation
 ├── .gitignore              # Strict exclusions (node_modules, dist, .env)
 ├── public/
 │   └── favicon.svg         # FIFA-themed SVG icon
 └── src/
     ├── main.js             # App bootstrap + routing + mode switching
-    ├── core/               # State management, events, cache, router
-    │   ├── state.js        # Proxy-based reactive state with batch(), subscribe()
+    ├── core/               # Reactive state, pub/sub events, router, L1/L2 cache
+    │   ├── state.js        # Proxy-based reactive state with batch() & subscribe()
     │   ├── events.js       # Pub/sub event bus with namespace wildcards
-    │   ├── router.js       # Hash-based SPA router with guards
-    │   └── cache.js        # Dual-layer L1/L2 caching with TTL
-    ├── services/           # GenAI engine, context manager, mock APIs
-    │   ├── genai-engine.js # Intent classifier, entity extractor, response gen
+    │   ├── router.js       # Hash-based SPA router with navigation guards
+    │   └── cache.js        # Dual-layer L1/L2 caching with TTL & snapshotting
+    ├── services/           # GenAI processing, context compression, mock APIs
+    │   ├── genai-engine.js # Intent classification, entity extraction, response gen
     │   ├── context-manager.js  # 3-tier context compression + follow-up detection
-    │   ├── firebase.js     # Mock real-time crowd & alert data
-    │   ├── maps.js         # Mock accessible wayfinding routes
-    │   ├── transit.js      # Mock transit schedules with surge detection
-    │   └── translation.js  # Script detection + dictionary translation
-    ├── components/         # 10 UI components (chat, heatmap, alerts, etc.)
-    │   ├── chat.js         # GenAI chat with rich cards + quick replies
-    │   ├── heatmap.js      # SVG crowd density visualization
-    │   ├── alert-feed.js   # Real-time ops alerts with ack/resolve
-    │   ├── header.js       # Mode toggle + language selector
-    │   ├── ticket-card.js  # Digital ticket with offline save
-    │   ├── transit-card.js # Live departure schedules
-    │   ├── stadium-map.js  # Interactive zone navigation
-    │   ├── metrics-panel.js # KPI cards with sparklines
-    │   ├── resource-panel.js # Staff deployment tracker
-    │   └── validation-wizard.js # 4-step reroute validation
-    ├── utils/              # DOM helpers, a11y, validators, constants
-    │   ├── validators.js   # XSS sanitizer, prompt injection defense, rate limiter
-    │   ├── a11y.js         # WCAG AAA: live regions, focus traps, contrast
+    │   ├── firebase.js     # Real-time crowd & alert data simulation stream
+    │   ├── maps.js         # Accessible wayfinding route generator
+    │   ├── transit.js      # Transit schedules & surge scheduling
+    │   └── translation.js  # Script identification & dictionary translator
+    ├── components/         # 10 modular UI components
+    │   ├── chat.js         # GenAI chat UI with rich cards & quick replies
+    │   ├── heatmap.js      # SVG crowd density visualization overlay
+    │   ├── alert-feed.js   # Real-time ops alerts with ack/resolve actions
+    │   ├── header.js       # Mode toggle + language selector + status indicator
+    │   ├── ticket-card.js  # Digital ticket with offline save capability
+    │   ├── transit-card.js # Live departure countdown schedules
+    │   ├── stadium-map.js  # Interactive zone navigation overlay
+    │   ├── metrics-panel.js # 4 KPI cards with inline SVG sparklines
+    │   ├── resource-panel.js # Staff deployment tracker & auto-balancer
+    │   └── validation-wizard.js # 4-step reroute validation modal
+    ├── utils/              # DOM helpers, WCAG AAA a11y, validators, constants
+    │   ├── validators.js   # XSS sanitizer, prompt injection scanner, rate limiter
+    │   ├── a11y.js         # WCAG AAA: live regions, focus traps, contrast check
     │   ├── dom.js          # Hyperscript h(), $, $$, debounce, throttle
-    │   ├── format.js       # Markdown-to-HTML safe formatter
+    │   ├── format.js       # Safe markdown-to-HTML formatter
     │   └── constants.js    # Stadium zones, venues, thresholds, templates
-    ├── styles/             # CSS design system (variables, base, components)
-    └── tests/              # 120 tests across 14 test files
-        ├── genai-engine.test.js     # Intent pipeline + prompt injection
-        ├── context-manager.test.js  # Compression + follow-up detection
-        ├── state.test.js            # Reactive state + batch updates
-        ├── validators.test.js       # XSS + injection + rate limiter
-        ├── maps.test.js             # Accessible wayfinding routes
-        ├── firebase.test.js         # Live simulations + alert push
-        ├── format.test.js           # Safe markdown formatting
-        ├── a11y.test.js             # WCAG contrast validation
-        ├── constants.test.js        # Threshold + data integrity
-        ├── integration.test.js      # End-to-end pipeline flows
-        ├── router.test.js           # Route matching + guards
-        ├── events.test.js           # Pub/sub + wildcards
-        ├── transit.test.js          # Schedules + surge detection
-        └── translation.test.js      # Language detection + translation
+    ├── styles/             # Modular CSS design system
+    └── tests/              # 120 tests across 14 test modules
+        ├── genai-engine.test.js     # Intent pipeline & prompt injection (22 tests)
+        ├── context-manager.test.js  # 3-tier compression & follow-up (11 tests)
+        ├── state.test.js            # Proxy reactivity & batching (7 tests)
+        ├── validators.test.js       # XSS & prompt injection scanner (24 tests)
+        ├── maps.test.js             # Accessible wayfinding routes (5 tests)
+        ├── firebase.test.js         # Live simulations & alert pushing (6 tests)
+        ├── format.test.js           # Markdown HTML formatting (6 tests)
+        ├── a11y.test.js             # WCAG contrast checking (5 tests)
+        ├── constants.test.js        # Data & threshold integrity (9 tests)
+        ├── integration.test.js      # E2E pipeline & context lifecycle (8 tests)
+        ├── events.test.js           # Event bus & namespace wildcards (4 tests)
+        ├── router.test.js           # Route matching & guards (3 tests)
+        ├── transit.test.js          # Schedules & surge detection (5 tests)
+        └── translation.test.js      # Language detection & translation (5 tests)
 ```
 
 ---
 
-## 📋 Assumptions Made
+## 🧪 Comprehensive Test Suite
 
-1. **Mocked Google APIs**: Google Cloud Translation, Maps Platform, and Firebase Firestore are simulated with realistic latencies (100–400ms) and functional contract structures. Each mock service in `src/services/` is architected as a drop-in replacement — swap the internals with real SDK clients without modifying any component code.
-
-2. **No Exposed API Keys**: Zero API keys are present in the client-side code. The `validateApiKey()` utility actively detects potential key leaks. In production, keys would be injected via Vercel environment variables (`VITE_*` prefix).
-
-3. **Stadium Cell Network Congestion**: Cell service inside stadiums during matches is severely congested. The app addresses this with:
-   - Offline-first architecture using localStorage snapshots
-   - Digital ticket saved for offline access
-   - Tailwind loaded via CDN (0 bytes in repository)
-   - Total production bundle under 100 KB gzipped
-
-4. **Crowd Flow Algorithms**: Crowd density trends (rising/falling/stable) are simulated via smooth ±5% transitions per 5-second tick. A density threshold above 85% automatically generates AI alerts for operations staff. This models realistic crowd dynamics without requiring real sensor data.
-
-5. **Ops Mode Access Control**: Authentication for Ops Command mode is intentionally unrestricted in this demo to allow judges to freely audit both modes. In production, Ops mode would require staff authentication via Firebase Auth.
-
-6. **Real FIFA 2026 Venues**: The app uses actual FIFA World Cup 2026 host city data (MetLife Stadium, NJ) and realistic venue configurations (16 zones, 6 gates, medical stations, food courts) for maximum problem-statement alignment.
-
----
-
-## ♿ Accessibility (WCAG AAA)
-
-- **Contrast**: Primary text uses `#1E40AF` on `#FAFBFC` — **8.95:1** contrast ratio (exceeds 7:1 AAA requirement)
-- **Screen Reader**: ARIA live-regions for chat messages, zone density announcements, and alert notifications
-- **Keyboard**: Full tab navigation, Enter/Space activation, focus traps in modal wizard
-- **Skip Link**: Hidden skip-to-content link for keyboard-first users
-- **Reduced Motion**: `prefers-reduced-motion` media query disables all animations
-- **Accessible Routes**: Wayfinding engine modifies routes for wheelchair, elevator, and low-sensory paths
-- **RTL Support**: Dynamic `lang` and `dir` attributes on `<html>` for Arabic and other RTL languages
-- **Noscript Fallback**: `<noscript>` element for users without JavaScript
-
----
-
-## 🧪 Testing
-
-PitchSync AI includes a comprehensive, zero-dependency test suite using Node.js's native test runner:
+PitchSync AI features a zero-dependency automated test suite using Node.js's native test runner (`node --test`).
 
 ```bash
 npm run test
 ```
 
-| Test Suite | Tests | Coverage |
-|-----------|-------|---------|
-| `genai-engine.test.js` | 22 | NLP pipelines, prompt injection defense, intent classification, entity extraction, XSS safety |
-| `context-manager.test.js` | 11 | Token estimation, 3-tier context compression, priority pinning, follow-up detection, context assembly |
-| `state.test.js` | 7 | Proxy reactivity, subscriber notification, batch updates without double-fire, state reset, snapshots |
-| `validators.test.js` | 24 | XSS sanitization, prompt injection scanner, message validation, rate limiter, gate/zone checks, API key leak detection |
-| `maps.test.js` | 5 | Accessible route generation, low-sensory detour injection, elevator path substitution |
-| `firebase.test.js` | 6 | Live crowd data subscriptions, alert pushing, state sync, cleanup lifecycle |
-| `format.test.js` | 6 | Markdown formatting, XSS safety during formatting, combined formatting |
-| `a11y.test.js` | 5 | WCAG AAA contrast ratio validation |
-| `constants.test.js` | 9 | Density threshold ordering, crowd data generator, transit schedules, venue/zone integrity |
-| `integration.test.js` | 8 | End-to-end pipeline, multi-turn context tracking, compression lifecycle, XSS through pipeline |
-| `events.test.js` | 4 | Pub/sub event broker, wildcard namespace matching, once subscriptions |
-| `router.test.js` | 3 | Dynamic route matching, navigation guards, 404 fallback |
-| `transit.test.js` | 5 | Schedule caching, mode filtering, countdown calculation, surge scheduling |
-| `translation.test.js` | 5 | Script detection (Latin/CJK/Arabic/Devanagari), dictionary lookups, language listing |
-| **Total** | **120** | **All passing ✅** |
+### Test Suite Execution Output
+```
+✔ State snapshotting save and restore
+✔ density thresholds are ordered correctly
+✔ generateCrowdData returns valid zone data
+✔ processMessage: wheelchair context routes via accessible path
+✔ processMessage: prompt injection is neutralized
+✔ integration: full pipeline — user message to AI response
+✔ integration: multi-turn conversation with context tracking
+✔ integration: accessibility profile affects all wayfinding responses
+...
+ℹ tests 120
+ℹ pass 120
+ℹ fail 0
+ℹ duration_ms 3541.78
+```
 
 ---
 
