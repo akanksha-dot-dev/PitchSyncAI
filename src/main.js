@@ -22,6 +22,7 @@ import { restoreSnapshot, startAutoSave, saveSnapshot } from './core/cache.js';
 import { h, $ } from './utils/dom.js';
 import { announce } from './utils/a11y.js';
 import { generateCrowdData, MOCK_TICKET, LANGUAGES } from './utils/constants.js';
+import { logger } from './utils/logger.js';
 
 // Components
 import { createHeader } from './components/header.js';
