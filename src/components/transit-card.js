@@ -41,9 +41,19 @@ export function createTransitPanel() {
   setTimeout(() => refreshTransit(), 100);
 
   // Auto-refresh every 15 seconds
-  setInterval(() => updateCountdowns(), 15000);
+  countdownTimer = setInterval(() => updateCountdowns(), 15000);
 
   return panel;
+}
+
+/**
+ * Destroy the transit panel component and clear timers.
+ */
+export function destroyTransitPanel() {
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
 }
 
 /**
