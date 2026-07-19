@@ -18,15 +18,12 @@ import { memGet, memSet } from '../core/cache.js';
 const CACHE_KEY = 'transit_schedules';
 const CACHE_TTL = 60000; // 1 minute
 
-let schedulesCache = null;
+let countdownTimer = null;
 
 /**
  * Get current transit departure schedules with L1 memory caching.
  *
  * @returns {Array<{ id: string, mode: string, line: string, destination: string, departure: string, delay: number, accessible: boolean, capacity: number }>} Array of departure schedules
- *
- * @example
- * const schedules = getSchedule();
  */
 export function getSchedule() {
   const cached = memGet(CACHE_KEY);
@@ -34,7 +31,6 @@ export function getSchedule() {
 
   const schedules = generateTransitSchedules();
   memSet(CACHE_KEY, schedules, CACHE_TTL);
-  schedulesCache = schedules;
 
   return schedules;
 }
@@ -44,9 +40,6 @@ export function getSchedule() {
  *
  * @param {'metro'|'bus'|'shuttle'|'rideshare'} mode - Transit mode identifier
  * @returns {Array<object>} Filtered departure schedules
- *
- * @example
- * const shuttles = getScheduleByMode('shuttle');
  */
 export function getScheduleByMode(mode) {
   return getSchedule().filter(s => s.mode === mode);
@@ -68,10 +61,6 @@ export function getNextDeparture(mode) {
  *
  * @param {string|Date} departureTime - Departure time ISO string or Date
  * @returns {{ text: string, minutes: number, isUrgent: boolean }} Countdown object
- *
- * @example
- * getDepartureCountdown('2026-06-11T21:45:00');
- * // => { text: '12m', minutes: 12, isUrgent: false }
  */
 export function getDepartureCountdown(departureTime) {
   const dep = new Date(departureTime);
@@ -79,13 +68,8 @@ export function getDepartureCountdown(departureTime) {
   const diffMs = dep - now;
   const minutes = Math.max(0, Math.round(diffMs / 60000));
 
-  let text = `${minutes}m`;
-  if (minutes === 0) text = 'Now';
-  else if (minutes >= 60) {
-    const hours = Math.floor(minutes / 60);
-    const remainingMins = minutes % 60;
-    text = `${hours}h ${remainingMins}m`;
-  }
+  let text = `${minutes} min`;
+  if (minutes === 0) text = 'Departing now';
 
   return {
     text,
@@ -114,7 +98,6 @@ export function getAdjustedSchedule(overallDensity) {
   const baseSchedules = getSchedule();
   if (overallDensity < 80) return baseSchedules;
 
-  // Add surge shuttles during high density
   const surgeTime = new Date(Date.now() + 5 * 60000).toISOString();
   const surgeShuttle = {
     id: 'surge_shuttle_1',
@@ -136,12 +119,25 @@ export function getAdjustedSchedule(overallDensity) {
  *
  * @param {string} scheduleId - Transit schedule ID
  * @param {number} delayMinutes - Delay duration in minutes
+ * @returns {object|null} Updated schedule object
  */
 export function simulateDelay(scheduleId, delayMinutes) {
-  const schedules = getSchedule();
+  const schedules = [...getSchedule()];
   const target = schedules.find(s => s.id === scheduleId);
   if (target) {
     target.delay = delayMinutes;
     memSet(CACHE_KEY, schedules, CACHE_TTL);
+    return target;
+  }
+  return null;
+}
+
+/**
+ * Destroy the transit panel component and clear timers.
+ */
+export function destroyTransitPanel() {
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
   }
 }

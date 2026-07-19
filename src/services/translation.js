@@ -93,45 +93,45 @@ const PHRASE_DICT = Object.freeze({
  * Detect language of input text using Unicode script analysis & phrase matching.
  *
  * @param {string} text - User message input string
- * @returns {string} ISO 639-1 language code ('en', 'es', 'fr', 'ar', etc.)
- *
- * @example
- * detectLanguage('¿Dónde está mi asiento?') // => 'es'
- * detectLanguage('私の席はどこですか？')      // => 'ja'
+ * @returns {{ language: string, confidence: number, script: string }} Language detection payload
  */
 export function detectLanguage(text) {
-  if (!text || typeof text !== 'string') return 'en';
+  if (!text || typeof text !== 'string') return { language: 'en', confidence: 0.9, script: 'Latin' };
 
   // Script-based detection
-  if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(text)) return 'ja';
-  if (/[\uac00-\ud7af]/.test(text)) return 'ko';
-  if (/[\u0600-\u06ff]/.test(text)) return 'ar';
-  if (/[\u0900-\u097f]/.test(text)) return 'hi';
+  if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(text)) return { language: 'ja', confidence: 0.95, script: 'Japanese' };
+  if (/[\uac00-\ud7af]/.test(text)) return { language: 'ko', confidence: 0.95, script: 'Korean' };
+  if (/[\u0600-\u06ff]/.test(text)) return { language: 'ar', confidence: 0.95, script: 'Arabic' };
+  if (/[\u0900-\u097f]/.test(text)) return { language: 'hi', confidence: 0.95, script: 'Devanagari' };
 
   const lower = text.toLowerCase();
 
   // Spanish keywords
-  if (/\b(dónde|dónde|asiento|comida|médica|hola|gracias|puerta|por favor|ayuda)\b/.test(lower)) return 'es';
+  if (/\b(dónde|dónde|asiento|comida|médica|hola|gracias|puerta|por favor|ayuda)\b/.test(lower) || lower.includes('¿')) {
+    return { language: 'es', confidence: 0.9, script: 'Latin' };
+  }
   // French keywords
-  if (/\b(où|siège|nourriture|médicale|bonjour|merci|porte|s'il vous plaît|aide)\b/.test(lower)) return 'fr';
+  if (/\b(où|siège|nourriture|médicale|bonjour|merci|porte|s'il vous plaît|aide|monsieur)\b/.test(lower)) {
+    return { language: 'fr', confidence: 0.9, script: 'Latin' };
+  }
   // Portuguese keywords
-  if (/\b(onde|assento|comida|médica|olá|obrigado|portão|por favor|ajuda)\b/.test(lower)) return 'pt';
+  if (/\b(onde|assento|comida|médica|olá|obrigado|portão|por favor|ajuda)\b/.test(lower)) {
+    return { language: 'pt', confidence: 0.9, script: 'Latin' };
+  }
   // German keywords
-  if (/\b(wo|platz|essen|hilfe|hallo|danke|tor|bitte)\b/.test(lower)) return 'de';
+  if (/\b(wo|platz|essen|hilfe|hallo|danke|tor|bitte|welt)\b/.test(lower)) {
+    return { language: 'de', confidence: 0.9, script: 'Latin' };
+  }
 
-  return 'en';
+  return { language: 'en', confidence: 0.85, script: 'Latin' };
 }
 
 /**
- * Translate text string into target language using local phrase dictionary or echo fallback.
+ * Translate text string into target language using local phrase dictionary or formatted fallback.
  *
  * @param {string} text - Text phrase to translate
  * @param {string} targetLang - Target ISO 639-1 language code (e.g. 'es')
  * @returns {Promise<{ translatedText: string, sourceLang: string, targetLang: string }>} Translation result payload
- *
- * @example
- * const res = await translateText('Where is my seat?', 'es');
- * console.log(res.translatedText); // => '¿Dónde está mi asiento?'
  */
 export function translateText(text, targetLang) {
   return new Promise((resolve) => {
@@ -142,11 +142,19 @@ export function translateText(text, targetLang) {
       }
 
       const dict = PHRASE_DICT[targetLang];
-      const translated = dict?.[text] || text;
+      let translated = dict?.[text];
+
+      if (!translated) {
+        const langInfo = LANGUAGES[targetLang];
+        const langName = langInfo?.nativeName || langInfo?.name || targetLang;
+        translated = `[${langName}] ${text}`;
+      }
+
+      const detected = detectLanguage(text);
 
       resolve({
         translatedText: translated,
-        sourceLang: detectLanguage(text),
+        sourceLang: detected.language,
         targetLang,
       });
     }, 100);
