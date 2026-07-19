@@ -146,10 +146,17 @@ const state = new Proxy(rawTarget, {
 });
 
 /**
- * Subscribe to state changes for a specific key
+ * Subscribe to state changes for a specific key.
+ *
  * @param {string} key - State property to watch
  * @param {Function} callback - (newValue, oldValue, key) => void
  * @returns {Function} Unsubscribe function
+ *
+ * @example
+ * const unsub = subscribe('appMode', (mode) => {
+ *   console.log(`Mode changed to ${mode}`);
+ * });
+ * // Later: unsub();
  */
 export function subscribe(key, callback) {
   if (!subscribers.has(key)) {
@@ -170,8 +177,16 @@ export function subscribeAll(callback) {
 }
 
 /**
- * Batch multiple state updates without firing intermediate notifications
+ * Batch multiple state updates without firing intermediate notifications.
+ * Writes directly to the raw target, then fires all notifications once.
+ *
  * @param {Function} updater - (state) => void
+ *
+ * @example
+ * batch((s) => {
+ *   s.appMode = 'ops';
+ *   s.language = 'es';
+ * }); // Subscribers fire once each, not twice
  */
 export function batch(updater) {
   const pending = [];

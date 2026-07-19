@@ -1,9 +1,15 @@
 {
-  "name": "fifa-matchday-genai-nexus",
+  "name": "pitchsync-ai",
   "private": true,
   "version": "1.0.0",
-  "description": "GenAI-powered dual-mode assistant for FIFA World Cup 2026 stadium operations",
+  "description": "GenAI-powered dual-mode stadium operations and fan experience platform for FIFA World Cup 2026 — multilingual chat, accessible wayfinding, real-time crowd management, and ops intelligence.",
   "type": "module",
+  "keywords": ["genai", "fifa", "stadium", "accessibility", "crowd-management", "multilingual", "wayfinding"],
+  "homepage": "https://pitchsync-ai.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/akanksha-dot-dev/PitchSyncAI.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -14,3 +20,4 @@
     "vite": "^6.3.5"
   }
 }
+
