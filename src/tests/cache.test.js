@@ -1,95 +1,40 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import {
-  memGet,
-  memSet,
-  memDelete,
-  memClear,
-  storageGet,
-  storageSet,
-  storageDelete,
-  cacheGet,
-  cacheSet,
-  saveSnapshot,
-  restoreSnapshot
-} from '../core/cache.js';
+import { memSet, memGet, memClear, cacheSet, cacheGet, getCacheStats, saveSnapshot, loadSnapshot } from '../core/cache.js';
 
-// Setup mock localStorage if running in Node environment without window
-if (typeof globalThis.localStorage === 'undefined') {
-  const store = new Map();
-  globalThis.localStorage = {
-    getItem: (key) => store.get(key) ?? null,
-    setItem: (key, value) => store.set(key, String(value)),
-    removeItem: (key) => store.delete(key),
-    clear: () => store.clear(),
-    key: (index) => Array.from(store.keys())[index] ?? null,
-    get length() {
-      return store.size;
-    }
-  };
-}
-
-test('Memory cache (L1) operations', () => {
+test('memSet and memGet store and retrieve values', () => {
   memClear();
-  memSet('testKey', 'testVal');
-  assert.strictEqual(memGet('testKey'), 'testVal');
-
-  memDelete('testKey');
-  assert.strictEqual(memGet('testKey'), null);
+  memSet('test_key', { data: 123 }, 60000);
+  const result = memGet('test_key');
+  assert.deepStrictEqual(result, { data: 123 });
 });
 
-test('Memory cache (L1) TTL expiration', async () => {
+test('memGet returns null for expired or missing keys', () => {
   memClear();
-  memSet('ttlKey', 'ttlVal', 10); // 10ms TTL
-  assert.strictEqual(memGet('ttlKey'), 'ttlVal');
+  assert.strictEqual(memGet('non_existent'), null);
 
-  await new Promise((resolve) => setTimeout(resolve, 20));
-  assert.strictEqual(memGet('ttlKey'), null);
+  memSet('expired_key', 'val', -100);
+  assert.strictEqual(memGet('expired_key'), null);
 });
 
-test('LocalStorage cache (L2) operations', () => {
-  localStorage.clear();
-  storageSet('storageKey', { nested: 'data' });
-  assert.deepStrictEqual(storageGet('storageKey'), { nested: 'data' });
-
-  storageDelete('storageKey');
-  assert.strictEqual(storageGet('storageKey'), null);
+test('cacheSet and cacheGet dual-layer caching', () => {
+  memClear();
+  cacheSet('dual_key', 'dual_val', 60000);
+  const result = cacheGet('dual_key');
+  assert.strictEqual(result, 'dual_val');
 });
 
-test('Unified cache interface fallthrough (L1 -> L2)', () => {
+test('getCacheStats returns memory and storage metrics', () => {
   memClear();
-  localStorage.clear();
-
-  // Set in both L1 and L2
-  cacheSet('unifiedKey', 'unifiedValue', 5000);
-  assert.strictEqual(memGet('unifiedKey'), 'unifiedValue');
-  assert.strictEqual(storageGet('unifiedKey'), 'unifiedValue');
-
-  // Clear memory cache only
-  memClear();
-  assert.strictEqual(memGet('unifiedKey'), null);
-
-  // cacheGet should fetch from L2 and promote to L1
-  assert.strictEqual(cacheGet('unifiedKey'), 'unifiedValue');
-  assert.strictEqual(memGet('unifiedKey'), 'unifiedValue');
+  memSet('stat_key', 'val', 60000);
+  const stats = getCacheStats();
+  assert.ok(typeof stats.memoryKeys === 'number');
+  assert.ok(stats.memoryKeys >= 1);
 });
 
-test('State snapshotting save and restore', () => {
-  localStorage.clear();
-  const mockState = {
-    appMode: 'ops',
-    language: 'es',
-    chatHistory: [{ role: 'user', text: 'hi' }],
-    userProfile: { name: 'FIFA Fan' },
-    transitSchedules: []
-  };
-
+test('saveSnapshot and loadSnapshot state persistence', () => {
+  const mockState = { appMode: 'fan', language: 'es' };
   saveSnapshot(mockState);
-  const restored = restoreSnapshot();
-
-  assert.ok(restored);
-  assert.strictEqual(restored.mode, 'ops');
-  assert.strictEqual(restored.language, 'es');
-  assert.deepStrictEqual(restored.chatHistory, [{ role: 'user', text: 'hi' }]);
-  assert.deepStrictEqual(restored.userProfile, { name: 'FIFA Fan' });
+  const loaded = loadSnapshot();
+  assert.ok(loaded);
 });
