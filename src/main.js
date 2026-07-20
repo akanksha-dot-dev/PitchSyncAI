@@ -58,6 +58,7 @@ async function init() {
         if (snapshot.chatHistory) s.chatHistory = snapshot.chatHistory;
         if (snapshot.userProfile) s.userProfile = snapshot.userProfile;
         if (snapshot.mode) s.appMode = snapshot.mode;
+        if (snapshot.favorites) s.favorites = snapshot.favorites;
       });
       console.info('[App] State restored from snapshot');
     }
