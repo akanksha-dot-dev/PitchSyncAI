@@ -36,6 +36,13 @@ import { createAlertFeed, destroyAlertFeed } from './components/alert-feed.js';
 import { createResourcePanel } from './components/resource-panel.js';
 import { initValidationWizard } from './components/validation-wizard.js';
 
+// New Feature Components
+import { createCrowdDensityWidget } from './components/crowd-density-widget.js';
+import { createSosPanel } from './components/sos-panel.js';
+import { createFavoritesPanel } from './components/favorites-panel.js';
+import { createActivityLog } from './components/activity-log.js';
+import { initZoneDetailModal } from './components/zone-detail-modal.js';
+
 // Services
 import { subscribeToCrowdData, cleanup as cleanupFirebase } from './services/firebase.js';
 
@@ -88,7 +95,10 @@ async function init() {
     // 10. Initialize validation wizard
     initValidationWizard();
 
-    // 11. Hide loading screen
+    // 11. Initialize zone detail modal (appended to body once)
+    initZoneDetailModal();
+
+    // 12. Hide loading screen
     hideLoadingScreen();
 
     logger.info('App', 'PitchSync AI initialized');
@@ -185,11 +195,14 @@ function renderFanMode(container) {
     // Chat (main area)
     createChat(),
 
-    // Sidebar (map + transit + ticket)
+    // Sidebar (map + transit + ticket + new features)
     h('div', { class: 'fan-sidebar' },
+      createCrowdDensityWidget(),
       createStadiumMap('density'),
       createTransitPanel(),
       createTicketCard(),
+      createFavoritesPanel(),
+      createSosPanel(),
     ),
   );
 
@@ -212,10 +225,11 @@ function renderOpsMode(container) {
     // Heatmap (main area)
     createHeatmap(),
 
-    // Sidebar (alerts + resources)
+    // Sidebar (alerts + resources + activity log)
     h('div', { class: 'ops-sidebar' },
       createAlertFeed(),
       createResourcePanel(),
+      createActivityLog(),
     ),
   );
 
