@@ -12,6 +12,8 @@ import { h, $ } from '../utils/dom.js';
 import state, { subscribe } from '../core/state.js';
 import { STADIUM_ZONES, ZONE_ICONS } from '../utils/constants.js';
 import { announce } from '../utils/a11y.js';
+import { openZoneModal } from './zone-detail-modal.js';
+
 
 /**
  * Get hex fill color for a zone based on crowd density percentage.
@@ -182,7 +184,7 @@ function createOpsStadiumSVG() {
     el.setAttribute('tabindex', '0');
     el.setAttribute('aria-label', `${zoneInfo?.name}: ${density}%`);
 
-    el.addEventListener('click', () => showOpsZoneDetail(z.id));
+    el.addEventListener('click', () => openZoneModal(z.id));
     svg.appendChild(el);
 
     // Zone label
