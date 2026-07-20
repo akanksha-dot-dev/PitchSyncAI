@@ -62,9 +62,19 @@ const initialState = {
     accessibility: { total: 30, deployed: {} },
   },
 
+  // Fan favorites: [{ id, label, icon, zoneId, type }]
+  favorites: [],
+
+  // Ops activity log: [{ id, type, message, timestamp, severity }]
+  activityLog: [],
+
   // Validation wizard
   wizardOpen: false,
   wizardData: null,
+
+  // Zone detail modal
+  zoneDetailOpen: false,
+  zoneDetailId: null,
 
   // UI state
   sidebarOpen: true,
