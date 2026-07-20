@@ -11,7 +11,7 @@ import { h, $, formatTime } from '../utils/dom.js';
 import { announce } from '../utils/a11y.js';
 import state from '../core/state.js';
 import { subscribeToAlerts } from '../services/firebase.js';
-import { emit } from '../core/events.js';
+import { emit, on } from '../core/events.js';
 import { STADIUM_ZONES } from '../utils/constants.js';
 
 let unsubAlerts = null;
@@ -54,6 +54,12 @@ export function createAlertFeed() {
   // Subscribe to Firebase alerts
   unsubAlerts = subscribeToAlerts(handleNewAlert);
 
+  // Listen for SOS alerts from Fan mode
+  on('sos:alert', (alert) => handleNewAlert(alert));
+
+  // Broadcast alerts to activity log via event bus
+  on('alert:new', (alert) => renderAlert(alert));
+
   return feed;
 }
 
@@ -69,6 +75,9 @@ function handleNewAlert(alert) {
 
   // Update count
   updateAlertCount();
+
+  // Broadcast to event bus (picked up by activity log)
+  emit('alert:new', alert);
 
   // Announce for screen readers
   const severity = alert.severity === 'critical' ? 'Critical' : alert.severity === 'warning' ? 'Warning' : 'Info';
